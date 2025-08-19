@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  <name>HP Edit Price Item</name>
+  <code>HPEPI</code>
+  <version>1.0.0.0</version>
+  <author>HP Web Design</author>
+  <link>https://hpwebdesign.io</link>
+  <file path="admin/view/template/sale/order_form.twig">
+    <operation error="skip">
+      <search trim="true"><![CDATA[html += '  <td class="text-right">' + product['price'] + '</td>';]]></search>
+      <add position="replace"><![CDATA[
+    html += '  <td class="text-right">';
+html += '    <span class="price-text">' + product['price'] + '</span>';
+
+html += '    <div class="price-edit" style="display:none;">';
+html += '      <input type="text" name="product[' + i + '][price]" value="'+product['edit_price']+'" class="form-control input-sm price-input" style="width:100%; text-align:right;" />';
+
+html += '      <div class="row" style="margin-top:6px;">';
+html += '        <div class="col-xs-6 text-left">';
+html += '          <div class="text-danger price-error" style="display:none;"></div>';
+html += '        </div>';
+html += '        <div class="col-xs-6 text-right btn-actions">';
+html += '          <button type="button" class="btn btn-success btn-sm save-price" data-cart-id="' + product['cart_id'] + '">';
+html += '            <i class="fa fa-save"></i>';
+html += '          </button> ';
+html += '          <button type="button" class="btn btn-default btn-sm cancel-price">';
+html += '            <i class="fa fa-times"></i>';
+html += '          </button>';
+html += '        </div>';
+html += '        <div class="col-xs-6 text-right loading" style="display:none;">';
+html += '          <i class="fa fa-spinner fa-spin"></i> Loading...';
+html += '        </div>';
+html += '      </div>';
+
+html += '    </div>';
+
+html += '    <button type="button" class="btn btn-info btn-xs edit-price" style="margin-top:4px;">';
+html += '      <i class="fa fa-pencil"></i>';
+html += '    </button>';
+html += '  </td>';
+      ]]></add>
+    </operation>
+    <operation error="skip">
+      <search trim="true"><![CDATA[{{ footer }}]]></search>
+      <add position="before"><![CDATA[
+      <style>
+      .loading {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  color: #333;
+}
+
+.loading i {
+  margin-right: 8px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+      </style>
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+      <script type="text/javascript">
+$(document).on('click', '.edit-price', function() {
+    var td = $(this).closest('td');
+    td.find('.price-text').hide();
+    td.find('.edit-price').hide();
+    td.find('.price-edit').show();
+    td.find('.price-input').focus();
+});
+
+$(document).on('click', '.save-price', function() {
+    var td = $(this).closest('td');
+    var input = td.find('.price-input');
+    var error = td.find('.price-error');
+
+    if (input.val() === '' || isNaN(input.val()) || parseFloat(input.val()) <= 0) {
+        error.text('Please fill out the price').show();
+        return;
+    } else {
+        error.hide();
+    }
+
+    var newPrice = input.val();
+    var cartId = $(this).data('cart-id');
+
+    // sembunyikan tombol & tampilkan loading
+    td.find('.btn-actions').hide();
+    td.find('.loading').show();
+
+    $.ajax({
+        url: '{{ catalog }}index.php?route=api/cart/savePrice&api_token={{ api_token }}&store_id=' + $('select[name=\'store_id\'] option:selected').val(),
+        type: 'post',
+        data: { cart_id: cartId, price: newPrice },
+        dataType: 'json',
+        success: function(json) {
+            console.log(json);
+            if (json.success) {
+                 toastr.success(json.success);
+                $('#button-refresh').trigger('click');
+            } else if (json.error) {
+                error.text(json.error).show();
+            }
+        },
+        error: function(xhr, status, errorMsg) {
+            error.text('Error: ' + errorMsg).show();
+        },
+        complete: function() {
+            // setelah selesai, tampilkan lagi tombol & hide loading
+            td.find('.loading').hide();
+            td.find('.btn-actions').show();
+        }
+    });
+});
+
+$(document).on('click', '.cancel-price', function() {
+    var td = $(this).closest('td');
+    var oldPrice = td.find('.price-text').text();
+
+    td.find('.price-input').val(oldPrice);
+    td.find('.price-edit').hide();
+    td.find('.price-text').show();
+    td.find('.edit-price').show();
+});
+</script>
+
+      ]]></add>
+    </operation>
+  </file>
+  
+  <file path="system/library/cart/cart.php">
+     <operation error="skip">
+      <search trim="true"><![CDATA[$product_data[] = array(]]></search>
+      <add position="before"><![CDATA[
+      
+      if (isset($this->session->data['edit_price'][$cart['cart_id']]) && $this->session->data['edit_price'][$cart['cart_id']]) {
+        $price = $this->session->data['edit_price'][$cart['cart_id']];
+        $option_price = 0;
+      }
+      ]]></add>
+    </operation>
+  </file>
+  <file path="catalog/controller/api/cart.php">
+    <operation error="skip">
+      <search trim="true"><![CDATA[public function products() {]]></search>
+      <add position="before"><![CDATA[
+      public function savePrice() {
+    $this->load->language('api/cart');
+
+    $json = [];
+
+    if (!isset($this->session->data['api_id'])) {
+			$json['error'] = $this->language->get('error_permission');
+		}
+    if (!$json) {
+        $cart_id = isset($this->request->post['cart_id']) ? (int)$this->request->post['cart_id'] : 0;
+        $price   = isset($this->request->post['price']) ? (float)$this->request->post['price'] : 0;
+
+        if ($cart_id && $price > 0) {
+            $this->session->data['edit_price'][$cart_id] = $price;
+            $json['success'] = 'Price updated successfully!';
+        } else {
+            $json['error'] = 'Please fill out the price';
+        }
+    }
+
+    $this->response->addHeader('Content-Type: application/json');
+    $this->response->setOutput(json_encode($json));
+}
+
+      ]]></add>
+    </operation>
+    <operation error="skip">
+      <search trim="true"><![CDATA[foreach ($this->request->post['product'] as $product) {]]></search>
+      <add position="before"><![CDATA[
+      $data_price = [];
+      ]]></add>
+    </operation>
+    <operation error="skip">
+      <search trim="true"><![CDATA[foreach ($this->request->post['product'] as $product) {]]></search>
+      <add position="after"><![CDATA[
+      $data_price[] = $product['price'] ?? 0;
+      ]]></add>
+    </operation>
+    <operation error="skip">
+      <search index="0"><![CDATA[$json['success'] = $this->language->get('text_success');]]></search>
+      <add position="after"><![CDATA[
+      $products = $this->cart->getProducts();
+			foreach ($products as $key => $product) {
+			     $this->session->data['edit_price'][$product['cart_id']] = $data_price[$key];
+			}
+      ]]></add>
+    </operation>
+    <operation error="skip">
+      <search trim="true"><![CDATA[$json['products'][] = array(]]></search>
+      <add position="after"><![CDATA['edit_price'      => $this->tax->calculate($product['price'], $product['tax_class_id'], $this->config->get('config_tax')),]]></add>
+    </operation>
+    
+  </file>
+  <file path="catalog/controller/api/order.php">
+    <operation error="skip">
+      <search trim="true"><![CDATA[$this->model_checkout_order->editOrder($order_id, $order_data);]]></search>
+      <add position="after"><![CDATA[
+      if (isset($this->session->data['edit_price'])) {
+        unset($this->session->data['edit_price']);
+      }
+      ]]></add>
+    </operation>
+  </file>
+</modification>

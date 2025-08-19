@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  <name>HP Sub Total Taxable and Non Taxable</name>
+  <code>HPSTTNT</code>
+  <version>1.0.0.0</version>
+  <author>HP Web Design</author>
+  <link>https://hpwebdesign.io</link>
+  
+  <file path="system/library/cart/cart.php">
+     <operation error="skip">
+      <search trim="true"><![CDATA[$product_data[] = array(]]></search>
+      <add position="before"><![CDATA[
+      
+      if (isset($this->session->data['edit_price'][$product_query->row['product_id']]) && $this->session->data['edit_price'][$product_query->row['product_id']]) {
+        $price = $this->session->data['edit_price'][$product_query->row['product_id']];
+        $option_price = 0;
+      }
+      ]]></add>
+    </operation>
+  </file>
+  <file path="system/library/cart/cart.php">
+    <operation error="skip">
+      <search trim="true"><![CDATA[public function getSubTotal() {]]></search>
+      <add position="before"><![CDATA[
+      public function getSubTotalTax() {
+        $total = 0;
+
+        foreach ($this->getProducts() as $product) {
+            if ($product['tax_class_id']) {
+                $total += $product['total'];
+            }
+        }
+
+        return $total;
+      }
+        public function getSubTotalNonTax() {
+            $total = 0;
+
+            foreach ($this->getProducts() as $product) {
+                if (!$product['tax_class_id']) {
+                    $total += $product['total'];
+                }
+            }
+
+            return $total;
+        }
+
+      ]]></add>
+    </operation>
+  </file>
+  
+</modification>
