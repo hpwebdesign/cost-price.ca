@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
   <name>HP Edit Price Item</name>
-  <code>HPEPI</code>
+  <code>HPEO</code>
   <version>1.0.0.0</version>
   <author>HP Web Design</author>
   <link>https://hpwebdesign.io</link>
@@ -20,7 +20,7 @@ html += '        <div class="col-xs-6 text-left">';
 html += '          <div class="text-danger price-error" style="display:none;"></div>';
 html += '        </div>';
 html += '        <div class="col-xs-6 text-right btn-actions">';
-html += '          <button type="button" class="btn btn-success btn-sm save-price" data-cart-id="' + product['cart_id'] + '">';
+html += '          <button type="button" class="btn btn-success btn-sm save-price" data-product-id="' + product['product_id'] + '" data-cart-id="' + product['cart_id'] + '">';
 html += '            <i class="fa fa-save"></i>';
 html += '          </button> ';
 html += '          <button type="button" class="btn btn-default btn-sm cancel-price">';
@@ -86,6 +86,7 @@ $(document).on('click', '.save-price', function() {
 
     var newPrice = input.val();
     var cartId = $(this).data('cart-id');
+    var productId = $(this).data('product-id');
 
     // sembunyikan tombol & tampilkan loading
     td.find('.btn-actions').hide();
@@ -94,7 +95,7 @@ $(document).on('click', '.save-price', function() {
     $.ajax({
         url: '{{ catalog }}index.php?route=api/cart/savePrice&api_token={{ api_token }}&store_id=' + $('select[name=\'store_id\'] option:selected').val(),
         type: 'post',
-        data: { cart_id: cartId, price: newPrice },
+        data: { cart_id: cartId,product_id: productId, price: newPrice },
         dataType: 'json',
         success: function(json) {
             console.log(json);
@@ -153,14 +154,16 @@ $(document).on('click', '.cancel-price', function() {
     $json = [];
 
     if (!isset($this->session->data['api_id'])) {
-			$json['error'] = $this->language->get('error_permission');
-		}
+            $json['error'] = $this->language->get('error_permission');
+        }
     if (!$json) {
         $cart_id = isset($this->request->post['cart_id']) ? (int)$this->request->post['cart_id'] : 0;
+        $product_id = isset($this->request->post['product_id']) ? (int)$this->request->post['product_id'] : 0;
         $price   = isset($this->request->post['price']) ? (float)$this->request->post['price'] : 0;
 
-        if ($cart_id && $price > 0) {
+        if ($product_id && $cart_id && $price > 0) {
             $this->session->data['edit_price'][$cart_id] = $price;
+            $this->session->data['edit_price_product'][$product_id] = $price;
             $json['success'] = 'Price updated successfully!';
         } else {
             $json['error'] = 'Please fill out the price';
@@ -177,6 +180,9 @@ $(document).on('click', '.cancel-price', function() {
       <search trim="true"><![CDATA[foreach ($this->request->post['product'] as $product) {]]></search>
       <add position="before"><![CDATA[
       $data_price = [];
+      if (isset($this->session->data['edit_price'])) {
+        unset($this->session->data['edit_price']);
+      }
       ]]></add>
     </operation>
     <operation error="skip">
@@ -189,9 +195,11 @@ $(document).on('click', '.cancel-price', function() {
       <search index="0"><![CDATA[$json['success'] = $this->language->get('text_success');]]></search>
       <add position="after"><![CDATA[
       $products = $this->cart->getProducts();
-			foreach ($products as $key => $product) {
-			     $this->session->data['edit_price'][$product['cart_id']] = $data_price[$key];
-			}
+            foreach ($products as $key => $product) {
+            if (isset($this->session->data['edit_price_product'][$product['product_id']]) && $this->session->data['edit_price_product'][$product['product_id']]) {
+                 $this->session->data['edit_price'][$product['cart_id']] = $this->session->data['edit_price_product'][$product['product_id']];
+                }
+            }
       ]]></add>
     </operation>
     <operation error="skip">
@@ -206,6 +214,7 @@ $(document).on('click', '.cancel-price', function() {
       <add position="after"><![CDATA[
       if (isset($this->session->data['edit_price'])) {
         unset($this->session->data['edit_price']);
+        unset($this->session->data['edit_price_product']);
       }
       ]]></add>
     </operation>
