@@ -6,16 +6,33 @@
   <author>HP Web Design</author>
   <link>https://hpwebdesign.io</link>
   
-  <file path="system/library/cart/cart.php">
+  <file path="catalog/model/extension/total/sub_total.php">
      <operation error="skip">
-      <search trim="true"><![CDATA[$product_data[] = array(]]></search>
+      <search trim="true"><![CDATA[$sub_total = $this->cart->getSubTotal();]]></search>
       <add position="before"><![CDATA[
+        $sub_total_non_tax = $this->cart->getSubTotalNonTax();
+        $sub_total_tax     = $this->cart->getSubTotalTax();
+        
+        $text_parts = [];
+        
+        if ($sub_total_tax > 0) {
+            $text_parts[] = "Taxable : " . $this->currency->format($sub_total_tax,$this->session->data['currency']);
+        }
+        
+        if ($sub_total_non_tax > 0) {
+            $text_parts[] = "Non Taxable : " . $this->currency->format($sub_total_non_tax,$this->session->data['currency']);
+        }
+        
+        $text = '';
+        if (!empty($text_parts)) {
+            $text = " (" . implode(" | ", $text_parts) . ")";
+        }
       
-      if (isset($this->session->data['edit_price'][$product_query->row['product_id']]) && $this->session->data['edit_price'][$product_query->row['product_id']]) {
-        $price = $this->session->data['edit_price'][$product_query->row['product_id']];
-        $option_price = 0;
-      }
       ]]></add>
+    </operation>
+    <operation error="skip">
+      <search trim="true"><![CDATA[$this->language->get('text_sub_total')]]></search>
+      <add position="replace"><![CDATA[$this->language->get('text_sub_total').$text]]></add>
     </operation>
   </file>
   <file path="system/library/cart/cart.php">
