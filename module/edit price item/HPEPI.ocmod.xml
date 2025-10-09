@@ -10,10 +10,13 @@
       <search trim="true"><![CDATA[html += '  <td class="text-right">' + product['price'] + '</td>';]]></search>
       <add position="replace"><![CDATA[
     html += '  <td class="text-right">';
+    html += '    <button type="button" class="btn btn-danger btn-xs reset-price" data-product-id="' + product['product_id'] + '" data-cart-id="' + product['cart_id'] + '" style="margin-top:-25px;">';
+html += '      <i class="fa fa-recycle"></i>';
+html += '    </button>';
 html += '    <span class="price-text">' + product['price'] + '</span>';
 
 html += '    <div class="price-edit" style="display:none;">';
-html += '      <input type="text" name="product[' + i + '][price]" value="'+product['edit_price']+'" class="form-control input-sm price-input" style="width:100%; text-align:right;" />';
+html += '      <input type="text" name="product[' + i + '][edit_price]" value="'+product['edit_price']+'" class="form-control input-sm price-input" style="width:100%; text-align:right;" />';
 
 html += '      <div class="row" style="margin-top:6px;">';
 html += '        <div class="col-xs-6 text-left">';
@@ -44,6 +47,16 @@ html += '  </td>';
       <search trim="true"><![CDATA[{{ footer }}]]></search>
       <add position="before"><![CDATA[
       <style>
+        .reset-price {
+  position: absolute;
+  top: 25px;
+  left: 0;
+  margin: 0; /* hapus margin bawaan */
+}
+.table tbody > tr > td {
+  vertical-align: middle;
+  position: relative;
+}
       .loading {
   display: flex;
   align-items: center;
@@ -117,6 +130,49 @@ $(document).on('click', '.save-price', function() {
     });
 });
 
+$(document).on('click', '.reset-price', function() {
+    var td = $(this).closest('td');
+    var input = td.find('.price-input');
+    var error = td.find('.price-error');
+
+    var cartId = $(this).data('cart-id');
+    var productId = $(this).data('product-id');
+
+    // Tambahkan konfirmasi
+    if (!confirm('{{ text_confirm }}')) {
+        return; // jika dibatalkan, hentikan eksekusi
+    }
+
+    $.ajax({
+        url: '{{ catalog }}index.php?route=api/cart/resetPrice&api_token={{ api_token }}&store_id=' + $('select[name="store_id"] option:selected').val(),
+        type: 'post',
+        data: { 
+            cart_id: cartId,
+            product_id: productId 
+        },
+        dataType: 'json',
+        beforeSend: function() {
+            td.find('.loading').show();
+        },
+        success: function(json) {
+            console.log(json);
+            if (json.success) {
+                toastr.success(json.success);
+                $('#button-refresh').trigger('click');
+            } else if (json.error) {
+                error.text(json.error).show();
+            }
+        },
+        error: function(xhr, status, errorMsg) {
+            error.text('Error: ' + errorMsg).show();
+        },
+        complete: function() {
+            td.find('.loading').hide();
+        }
+    });
+});
+
+
 $(document).on('click', '.cancel-price', function() {
     var td = $(this).closest('td');
     var oldPrice = td.find('.price-text').text();
@@ -130,17 +186,36 @@ $(document).on('click', '.cancel-price', function() {
 
       ]]></add>
     </operation>
+    <operation error="skip">
+      <search trim="true"><![CDATA[<input type="hidden" name="product[{{ product_row }}][product_id]" value="{{ order_product.product_id }}" />]]></search>
+      <add position="after"><![CDATA[
+      <input type="hidden" name="product[{{ product_row }}][price]" value="{{ order_product.price }}" />
+      ]]></add>
+    </operation>
   </file>
   
   <file path="system/library/cart/cart.php">
      <operation error="skip">
       <search trim="true"><![CDATA[$product_data[] = array(]]></search>
       <add position="before"><![CDATA[
-      
-      if (isset($this->session->data['edit_price'][$cart['cart_id']]) && $this->session->data['edit_price'][$cart['cart_id']]) {
-        $price = $this->session->data['edit_price'][$cart['cart_id']];
-        $option_price = 0;
+      if (!$product_discount_query->num_rows && !$product_special_query->num_rows) {
+
+        if (isset($this->session->data['edit_price_product'][$product_query->row['product_id']]) && $this->session->data['edit_price_product'][$product_query->row['product_id']]) {
+            if ($price != $this->session->data['edit_price_product'][$product_query->row['product_id']]) { 
+             $this->session->data['edit_price'][$cart['cart_id']] = $this->session->data['edit_price_product'][$product_query->row['product_id']];
+             }
+            }
       }
+      if (isset($this->session->data['reset_price'][$cart['cart_id']])) {
+          unset($this->session->data['edit_price'][$cart['cart_id']]);
+          unset($this->session->data['reset_price'][$cart['cart_id']]);
+      }
+      if (isset($this->session->data['edit_price'][$cart['cart_id']]) && $this->session->data['edit_price'][$cart['cart_id']]) {
+            
+                $price = $this->session->data['edit_price'][$cart['cart_id']];
+                $option_price = 0;
+            
+        }
       ]]></add>
     </operation>
   </file>
@@ -174,6 +249,33 @@ $(document).on('click', '.cancel-price', function() {
     $this->response->setOutput(json_encode($json));
 }
 
+ public function resetPrice() {
+    $this->load->language('api/cart');
+
+    $json = [];
+
+    if (!isset($this->session->data['api_id'])) {
+            $json['error'] = $this->language->get('error_permission');
+        }
+    if (!$json) {
+        $cart_id = isset($this->request->post['cart_id']) ? (int)$this->request->post['cart_id'] : 0;
+        $product_id = isset($this->request->post['product_id']) ? (int)$this->request->post['product_id'] : 0;
+
+        if ($product_id && $cart_id) {
+                $this->session->data['reset_price'][$cart_id] = $product_id;
+                unset($this->session->data['edit_price'][$cart_id]);
+                unset($this->session->data['edit_price_product'][$product_id]);
+            
+            $json['success'] = 'Price reset successfully!';
+        } else {
+            $json['error'] = 'Please fill out the price';
+        }
+    }
+
+    $this->response->addHeader('Content-Type: application/json');
+    $this->response->setOutput(json_encode($json));
+}
+
       ]]></add>
     </operation>
     <operation error="skip">
@@ -188,20 +290,25 @@ $(document).on('click', '.cancel-price', function() {
     <operation error="skip">
       <search trim="true"><![CDATA[foreach ($this->request->post['product'] as $product) {]]></search>
       <add position="after"><![CDATA[
-      $data_price[] = $product['price'] ?? 0;
+      $this->session->data['edit_price_product'][$product['product_id']] = $product['price'] ?? 0;
       ]]></add>
     </operation>
-    <operation error="skip">
+   <!--  <operation error="skip">
       <search index="0"><![CDATA[$json['success'] = $this->language->get('text_success');]]></search>
       <add position="after"><![CDATA[
       $products = $this->cart->getProducts();
             foreach ($products as $key => $product) {
             if (isset($this->session->data['edit_price_product'][$product['product_id']]) && $this->session->data['edit_price_product'][$product['product_id']]) {
+                if ($product['price'] != $this->session->data['edit_price_product'][$product['product_id']]) { 
                  $this->session->data['edit_price'][$product['cart_id']] = $this->session->data['edit_price_product'][$product['product_id']];
+                 } else {
+                    unset($this->session->data['edit_price'][$product['cart_id']]);
+                 }
+
                 }
             }
       ]]></add>
-    </operation>
+    </operation> -->
     <operation error="skip">
       <search trim="true"><![CDATA[$json['products'][] = array(]]></search>
       <add position="after"><![CDATA['edit_price'      => $this->tax->calculate($product['price'], $product['tax_class_id'], $this->config->get('config_tax')),]]></add>
