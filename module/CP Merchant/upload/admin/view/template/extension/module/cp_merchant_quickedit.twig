@@ -1,0 +1,298 @@
+<link rel="stylesheet" type="text/css" href="{{ catalog_url }}catalog/view/javascript/merchant.css" />
+
+<div class="cp-merchant-app">
+
+  <div class="cp-masthead" style="display:flex;justify-content:space-between;align-items:flex-end;">
+    <div>
+      <h1>Merchant Application</h1>
+      <p class="cp-masthead-sub">{{ customer_name }}</p>
+    </div>
+    <div style="min-width:200px;">
+      <label style="display:block;font-size:11px;font-weight:500;color:var(--cp-ink-muted,#6B7480);margin-bottom:4px;">Application Status</label>
+      <select name="cp_status" id="cpQeStatus" class="cp-qe-status-select">
+        {% for value, label in statuses %}
+        <option value="{{ value }}" {% if status == value %}selected="selected"{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="cp-layout">
+    <nav class="cp-tabs" id="cpQeTabs">
+      <div class="cp-tab active" data-step="0"><span class="cp-tab-num">1</span><span class="cp-tab-label">Contact Information</span><span class="cp-tab-stamp">&#10003;</span></div>
+      <div class="cp-tab" data-step="1"><span class="cp-tab-num">2</span><span class="cp-tab-label">Billing Information</span><span class="cp-tab-stamp">&#10003;</span></div>
+      <div class="cp-tab" data-step="2"><span class="cp-tab-num">3</span><span class="cp-tab-label">Shipping Information</span><span class="cp-tab-stamp">&#10003;</span></div>
+      <div class="cp-tab" data-step="3"><span class="cp-tab-num">4</span><span class="cp-tab-label">Business Information</span><span class="cp-tab-stamp">&#10003;</span></div>
+      <div class="cp-tab" data-step="4"><span class="cp-tab-num">5</span><span class="cp-tab-label">Product Categories</span><span class="cp-tab-stamp">&#10003;</span></div>
+      <div class="cp-tab" data-step="5"><span class="cp-tab-num">6</span><span class="cp-tab-label">Review &amp; Notes</span><span class="cp-tab-stamp">&#10003;</span></div>
+    </nav>
+
+    <div class="cp-panel">
+      <form id="cpQeMerchantForm">
+        <input type="hidden" name="customer_id" value="{{ customer_id }}">
+
+        <div class="cp-step active" data-step="0">
+          <h2>Contact Information</h2>
+          <div class="cp-grid">
+            <div class="cp-field full">
+              <label>Business Operating Name</label>
+              <input type="text" name="business_operating_name" class="cp-field" value="{{ business_operating_name }}">
+            </div>
+            <div class="cp-field">
+              <label>Manager First Name</label>
+              <input type="text" name="manager_first_name" class="cp-field" value="{{ manager_first_name }}">
+            </div>
+            <div class="cp-field">
+              <label>Manager Last Name</label>
+              <input type="text" name="manager_last_name" class="cp-field" value="{{ manager_last_name }}">
+            </div>
+            <div class="cp-field">
+              <label>Title / Position</label>
+              <input type="text" name="title_position" class="cp-field" value="{{ title_position }}">
+            </div>
+            <div class="cp-field">
+              <label>Phone</label>
+              <input type="text" name="phone" class="cp-field" value="{{ phone }}">
+            </div>
+            <div class="cp-field">
+              <label>Cell</label>
+              <input type="text" name="cell" class="cp-field" value="{{ cell }}">
+            </div>
+            <div class="cp-field full">
+              <label>Mailing Address for Promotions and Special Deals</label>
+              <textarea name="promo_mailing_address" class="cp-field">{{ promo_mailing_address }}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-step" data-step="1">
+          <h2>Billing Information</h2>
+          <div class="cp-grid">
+            <div class="cp-field full">
+              <label>Address 1</label>
+              <input type="text" name="billing_address_1" id="qe_billing_address_1" class="cp-field" value="{{ billing_address_1 }}">
+            </div>
+            <div class="cp-field full">
+              <label>Address 2</label>
+              <input type="text" name="billing_address_2" id="qe_billing_address_2" class="cp-field" value="{{ billing_address_2 }}">
+            </div>
+            <div class="cp-field">
+              <label>City</label>
+              <input type="text" name="billing_city" id="qe_billing_city" class="cp-field" value="{{ billing_city }}">
+            </div>
+            <div class="cp-field">
+              <label>Province</label>
+              <input type="text" name="billing_province" id="qe_billing_province" class="cp-field" value="{{ billing_province }}">
+            </div>
+            <div class="cp-field">
+              <label>Postal Code</label>
+              <input type="text" name="billing_postcode" id="qe_billing_postcode" class="cp-field" value="{{ billing_postcode }}">
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-step" data-step="2">
+          <h2>Shipping Information</h2>
+          <label class="cp-check-row" for="qe_shipping_same">
+            <input type="checkbox" name="shipping_same_as_billing" id="qe_shipping_same" value="1" {% if shipping_same_as_billing %}checked{% endif %}>
+            <span>Same as Billing Information</span>
+          </label>
+          <div class="cp-grid" id="cpQeShippingFields">
+            <div class="cp-field full">
+              <label>Address 1</label>
+              <input type="text" name="shipping_address_1" id="qe_shipping_address_1" class="cp-field" value="{{ shipping_address_1 }}">
+            </div>
+            <div class="cp-field full">
+              <label>Address 2</label>
+              <input type="text" name="shipping_address_2" id="qe_shipping_address_2" class="cp-field" value="{{ shipping_address_2 }}">
+            </div>
+            <div class="cp-field">
+              <label>City</label>
+              <input type="text" name="shipping_city" id="qe_shipping_city" class="cp-field" value="{{ shipping_city }}">
+            </div>
+            <div class="cp-field">
+              <label>Province</label>
+              <input type="text" name="shipping_province" id="qe_shipping_province" class="cp-field" value="{{ shipping_province }}">
+            </div>
+            <div class="cp-field">
+              <label>Postal Code</label>
+              <input type="text" name="shipping_postcode" id="qe_shipping_postcode" class="cp-field" value="{{ shipping_postcode }}">
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-step" data-step="3">
+          <h2>Business Information</h2>
+          <p class="cp-subhead">Type of Business</p>
+          <div class="cp-radio-grid">
+            {% for value, label in business_types %}
+            <label class="cp-opt{% if business_type == value %} checked{% endif %}">
+              <input type="radio" name="business_type" class="cp-field" value="{{ value }}" {% if business_type == value %}checked{% endif %}> {{ label }}
+            </label>
+            {% endfor %}
+          </div>
+
+          <div class="cp-grid" style="margin-top:20px;">
+            <div class="cp-field full">
+              <label>Legal Business Name</label>
+              <input type="text" name="legal_business_name" class="cp-field" value="{{ legal_business_name }}">
+            </div>
+            <div class="cp-field full">
+              <label>Name of Legal Business Owner</label>
+              <input type="text" name="legal_business_owner" class="cp-field" value="{{ legal_business_owner }}">
+            </div>
+            <div class="cp-field">
+              <label>Federal Business (GST/HST) Number</label>
+              <input type="text" name="gst_hst_number" class="cp-field" value="{{ gst_hst_number }}">
+            </div>
+            <div class="cp-field">
+              <label>Year and Month Business Started</label>
+              <input type="text" name="business_started" class="cp-field" placeholder="e.g. 2019-06" value="{{ business_started }}">
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-step" data-step="4">
+          <h2>Product Categories</h2>
+          <div class="cp-checkbox-grid">
+            {% for value, label in categories_list %}
+            <label class="cp-opt{% if value in categories_selected %} checked{% endif %}">
+              <input type="checkbox" name="categories[]" class="cp-field" value="{{ value }}" {% if value in categories_selected %}checked{% endif %}> {{ label }}
+            </label>
+            {% endfor %}
+          </div>
+          <div class="cp-field full" style="margin-top:16px;">
+            <label>Other</label>
+            <input type="text" name="category_other" class="cp-field" value="{{ category_other }}">
+          </div>
+        </div>
+
+        <div class="cp-step" data-step="5">
+          <h2>Review &amp; Notes</h2>
+          <div class="cp-field full" style="margin-bottom:20px;">
+            <label>Questions / Comments</label>
+            <textarea name="questions_comments" class="cp-field" style="min-height:100px;">{{ questions_comments }}</textarea>
+          </div>
+
+          <hr class="cp-divider">
+
+          <div class="cp-grid">
+            <div class="cp-field">
+              <label>Applicant Name</label>
+              <input type="text" name="applicant_name" class="cp-field" value="{{ applicant_name }}">
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-step-footer">
+          <span class="cp-progress-text" id="cpQeProgressText">STEP 1 / 6</span>
+          <div class="cp-nav-group">
+            <button type="button" class="btn cp-btn-back" id="cpQeBtnBack">Back</button>
+            <button type="button" class="btn cp-btn-submit" id="cpQeBtnSave" data-save-url="{{ save }}">Save</button>
+          </div>
+        </div>
+
+      </form>
+
+      <div class="cp-merchant-toast" id="cpQeToast"></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+(function(){
+  var totalSteps = 6;
+  var current = 0;
+  var hasApplication = {{ has_application ? 'true' : 'false' }};
+
+  function showToast(message, type){
+    var $toast = $('#cpQeToast');
+    $toast.removeClass('cp-toast-success cp-toast-error').addClass(type === 'error' ? 'cp-toast-error' : 'cp-toast-success');
+    $toast.text(message).addClass('show');
+    clearTimeout($toast.data('cpTimer'));
+    var t = setTimeout(function(){ $toast.removeClass('show'); }, 2500);
+    $toast.data('cpTimer', t);
+  }
+
+  function renderStep(){
+    $('#cpQeMerchantForm .cp-step').removeClass('active');
+    $('#cpQeMerchantForm .cp-step[data-step="'+current+'"]').addClass('active');
+
+    $('#cpQeTabs .cp-tab').removeClass('active');
+    $('#cpQeTabs .cp-tab[data-step="'+current+'"]').addClass('active');
+    $('#cpQeTabs .cp-tab').each(function(){
+      var s = parseInt($(this).data('step'));
+      // Same principle as the storefront: only show "done" once a row
+      // actually exists in the DB for this customer — otherwise clicking
+      // through tabs on a never-submitted application would falsely
+      // suggest that section's data is safely saved.
+      $(this).toggleClass('done', hasApplication && s < current);
+    });
+
+    $('#cpQeProgressText').text('STEP ' + (current + 1) + ' / ' + totalSteps);
+    $('#cpQeBtnBack').toggle(current > 0);
+  }
+
+  // Tabs freely clickable — this is an admin editing tool, not a linear
+  // registration flow, so there's no Continue gate to walk through.
+  $('#cpQeTabs').on('click', '.cp-tab', function(){
+    current = parseInt($(this).data('step'));
+    renderStep();
+  });
+
+  $('#cpQeBtnBack').on('click', function(){
+    if (current > 0){ current--; renderStep(); }
+  });
+
+  $('#cpQeBtnSave').on('click', function(){
+    var $btn = $(this);
+    var url = $btn.data('save-url');
+
+    $btn.prop('disabled', true);
+
+    $.ajax({
+      url: url,
+      type: 'post',
+      data: $('#cpQeMerchantForm').serialize(),
+      dataType: 'json',
+      success: function(json){
+        if (json['error']) {
+          showToast(json['error'], 'error');
+        } else {
+          showToast(json['success'] || 'Saved!', 'success');
+          hasApplication = true;
+          renderStep();
+          if (window.cpQeOnSave) { window.cpQeOnSave(); }
+        }
+      },
+      error: function(){
+        showToast('Something went wrong saving this application.', 'error');
+      },
+      complete: function(){
+        $btn.prop('disabled', false);
+      }
+    });
+  });
+
+  function applySameAsBilling(){
+    var checked = $('#qe_shipping_same').is(':checked');
+    $('#cpQeShippingFields input').prop('disabled', checked);
+    $('#cpQeShippingFields').css('opacity', checked ? 0.5 : 1);
+    if (checked){
+      $('#qe_shipping_address_1').val($('#qe_billing_address_1').val());
+      $('#qe_shipping_address_2').val($('#qe_billing_address_2').val());
+      $('#qe_shipping_city').val($('#qe_billing_city').val());
+      $('#qe_shipping_province').val($('#qe_billing_province').val());
+      $('#qe_shipping_postcode').val($('#qe_billing_postcode').val());
+    }
+  }
+  $('#qe_shipping_same').on('change', applySameAsBilling);
+  applySameAsBilling();
+
+  $('#cpQeMerchantForm .cp-opt input').on('change', function(){
+    $(this).closest('.cp-opt').toggleClass('checked', $(this).is(':checked'));
+  });
+
+  renderStep();
+})();
+</script>

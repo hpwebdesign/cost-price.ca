@@ -1,0 +1,12 @@
+1. Install product manager | 1 hour
+- Filter by manufacturer
+
+2. Invoice grouped by ASC | 1 hour
+
+3. Split the sub total into tax and non tax | 2 hour
+-- Should be reflected on the email
+>> Add order
+>> Order Status Email
+
+4. Adjust the item on the invoice | 1 hour
+

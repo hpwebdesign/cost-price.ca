@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-  <name>Cost-Price Merchant Application - Customer Admin Integration</name>
-  <code>cp_merchant_admin</code>
+  <name>Cost-Price Merchant Application</name>
+  <code>cp_merchant</code>
   <version>1.0</version>
   <author>Bariklabs</author>
   <link>https://cost-price.example</link>
@@ -59,72 +59,162 @@
   <!-- customer_list.twig -->
   <file path="admin/view/template/customer/customer_list.twig">
 
-    <!-- Header column -->
+    <!-- Add a status badge + Quick Edit trigger directly under the
+         customer name. Badge is filled in by AJAX after page load
+         (batched lookup, no core controller edit needed). -->
     <operation error="skip">
-      <search><![CDATA[<td class="text-right">{{ column_action }}</td>]]></search>
-      <add position="before"><![CDATA[<td class="text-left">Merchant Status</td>
+      <search><![CDATA[{{ customer.name }}]]></search>
+      <add position="replace"><![CDATA[{{ customer.name }}<div class="cp-merchant-status-badge" data-customer-id="{{ customer.customer_id }}" style="display:none;"></div><a href="javascript:void(0);" class="btn btn-xs btn-info cp-merchant-quickedit-btn" data-customer-id="{{ customer.customer_id }}" style="display:none;">Quick Edit</a>]]></add>
+    </operation>
+
+    <!-- Badge + Quick Edit trigger + popup styling, all as CSS classes -->
+    <operation error="skip">
+      <search><![CDATA[{{ footer }}]]></search>
+      <add position="before"><![CDATA[<style>
+  .cp-merchant-status-badge{
+    display:inline-block;
+    margin-top:4px;
+    font-size:11px;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:10px;
+  }
+  .cp-merchant-status-badge.cp-status-pending_review{background:#FBF3E4;color:#9C6B14;}
+  .cp-merchant-status-badge.cp-status-approved{background:#E7F0E3;color:#3F6B2E;}
+  .cp-merchant-status-badge.cp-status-rejected{background:#FBEAE7;color:#A6432E;}
+  .cp-merchant-quickedit-btn{margin-top:4px;}
+  .cp-qe-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(27,42,58,.55);z-index:9998;align-items:center;justify-content:center;}
+  .cp-qe-overlay.show{display:flex;}
+  .cp-qe-modal{background:#fff;max-width:980px;width:92%;max-height:88vh;overflow-y:auto;border-radius:4px;position:relative;padding:24px;}
+  .cp-qe-close{position:absolute;top:12px;right:16px;font-size:24px;line-height:1;cursor:pointer;color:#6B7480;z-index:2;}
+  .cp-qe-close:hover{color:#1B2A3A;}
+  .cp-qe-status-select{font-size:13px;padding:6px 8px;border:1px solid #D9D3C4;border-radius:2px;width:100%;}
+</style>
 ]]></add>
     </operation>
 
-    <!-- Body column: placeholder filled in by AJAX after page load -->
-    <operation error="skip">
-      <search><![CDATA[<td class="text-left">{{ customer.date_added }}</td>]]></search>
-      <add position="after"><![CDATA[<td class="text-left cp-merchant-status" data-customer-id="{{ customer.customer_id }}">-</td>]]></add>
-    </operation>
-
-    <!-- Colspan fix for the "no results" row -->
-    <operation error="skip">
-      <search><![CDATA[colspan="8"]]></search>
-      <add position="replace"><![CDATA[colspan="9"]]></add>
-    </operation>
-
-    <!-- Batched AJAX fill-in for the new column. Anchored on {{ footer }},
-         the last unique token in the file, so the existing datetimepicker
-         script block is left completely untouched. -->
+    <!-- Batched AJAX fill-in for the badge, plus the Quick Edit popup:
+         a self-contained overlay (no Bootstrap .modal() dependency) that
+         loads admin/view/template/extension/module/cp_merchant_quickedit.twig
+         via AJAX and refreshes the badge on save. -->
     <operation error="skip">
       <search><![CDATA[{{ footer }}]]></search>
-      <add position="before"><![CDATA[<script type="text/javascript"><!--
+      <add position="before"><![CDATA[<div class="cp-qe-overlay" id="cpQeOverlay">
+  <div class="cp-qe-modal" id="cpQeModal">
+    <span class="cp-qe-close" id="cpQeClose">&times;</span>
+    <div id="cpQeContent"></div>
+  </div>
+</div>
+<script type="text/javascript"><!--
   (function(){
-    var ids = [];
-    $('.cp-merchant-status').each(function(){
-      var id = $(this).data('customer-id');
-      if (id) { ids.push(id); }
-    });
-    if (ids.length) {
+    var labels = {
+      'pending_review': 'Pending Review',
+      'approved':       'Approved',
+      'rejected':       'Rejected'
+    };
+
+    function refreshBadges() {
+      var ids = [];
+      $('.cp-merchant-status-badge').each(function(){
+        var id = $(this).data('customer-id');
+        if (id) { ids.push(id); }
+      });
+      if (!ids.length) { return; }
       $.ajax({
         url: 'index.php?route=extension/module/cp_merchant/liststatus&user_token={{ user_token }}',
         type: 'post',
         data: { customer_ids: ids },
         dataType: 'json',
         success: function(json) {
-          $('.cp-merchant-status').each(function(){
+          $('.cp-merchant-status-badge').each(function(){
             var id = $(this).data('customer-id');
-            var status = json[id];
-            $(this).text(status ? status : '-');
+            var row = json[id] || {};
+            var label = labels[row.status];
+
+            $(this).removeClass('cp-status-pending_review cp-status-approved cp-status-rejected').hide().text('');
+            if (label) {
+              $(this).text(label).addClass('cp-status-' + row.status).show();
+            }
+
+            // Quick Edit only ever shows for customers in a configured
+            // merchant group — everyone else has no application to edit.
+            $('.cp-merchant-quickedit-btn[data-customer-id="' + id + '"]').toggle(!!row.is_merchant);
           });
         }
       });
     }
+    refreshBadges();
+
+    $(document).on('click', '.cp-merchant-quickedit-btn', function(){
+      var customerId = $(this).data('customer-id');
+      $('#cpQeContent').html('<p style="padding:60px 20px;text-align:center;color:#6B7480;">Loading...</p>');
+      $('#cpQeOverlay').addClass('show');
+      $('#cpQeContent').load('index.php?route=extension/module/cp_merchant/quickedit&user_token={{ user_token }}&customer_id=' + customerId);
+    });
+
+    $('#cpQeClose').on('click', function(){
+      $('#cpQeOverlay').removeClass('show');
+    });
+    $('#cpQeOverlay').on('click', function(e){
+      if (e.target === this) { $('#cpQeOverlay').removeClass('show'); }
+    });
+
+    // Called by the quickedit fragment's Save button on success, so the
+    // list badge reflects the new status without a full page reload.
+    window.cpQeOnSave = refreshBadges;
   })();
   //--></script>
 ]]></add>
     </operation>
 
   </file>
+
+  <!-- account.php: redirect merchant-group customers with an incomplete
+       application to account/merchant -->
   <file path="catalog/controller/account/account.php">
-<operation error="skip">
-  <search><![CDATA[ $this->load->language('account/account'); ]]></search>
-    <add position="before">
-        <![CDATA[ 
-        $cp_merchant_group_ids = (array)$this->config->get('module_cp_merchant_group_ids'); 
-        if (in_array((int)$this->customer->getGroupId(), array_map('intval', $cp_merchant_group_ids), true)) { 
-        $this->load->model('account/merchant'); 
-        $cp_application = $this->model_account_merchant->getApplication($this->customer->getId()); 
-          if ($cp_application) { 
-          $this->response->redirect($this->url->link('account/merchant', '', true)); 
-          }  
-        } ]]>
-    </add>
-  </operation>
-</file>
+
+    <operation error="skip">
+      <search><![CDATA[$this->load->language('account/account');]]></search>
+      <add position="before"><![CDATA[$cp_merchant_group_ids = (array)$this->config->get('module_cp_merchant_group_ids');
+
+		if (in_array((int)$this->customer->getGroupId(), array_map('intval', $cp_merchant_group_ids), true)) {
+			$this->load->model('account/merchant');
+
+			$cp_application = $this->model_account_merchant->getApplication($this->customer->getId());
+
+			if (!$cp_application || $cp_application['status'] == 'incomplete') {
+				$this->response->redirect($this->url->link('account/merchant', '', true));
+			}
+		}
+
+		]]></add>
+    </operation>
+
+  </file>
+
+  <!-- success.php: same guard as account.php — only merchant-group
+       customers with an incomplete application get redirected, so
+       checkout success still works normally for everyone else -->
+  <file path="catalog/controller/account/success.php">
+
+    <operation error="skip">
+      <search><![CDATA[public function index() {]]></search>
+      <add position="after"><![CDATA[
+		if ($this->customer->isLogged()) {
+			$cp_merchant_group_ids = (array)$this->config->get('module_cp_merchant_group_ids');
+
+			if (in_array((int)$this->customer->getGroupId(), array_map('intval', $cp_merchant_group_ids), true)) {
+				$this->load->model('account/merchant');
+
+				$cp_application = $this->model_account_merchant->getApplication($this->customer->getId());
+
+				if (!$cp_application || $cp_application['status'] == 'incomplete') {
+					$this->response->redirect($this->url->link('account/merchant', '', true));
+				}
+			}
+		}
+]]></add>
+    </operation>
+
+  </file>
 </modification>

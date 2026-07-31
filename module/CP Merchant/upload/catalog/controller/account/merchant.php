@@ -41,6 +41,35 @@ class ControllerAccountMerchant extends Controller {
 		return in_array($group_id, array_map('intval', $merchant_group_ids), true);
 	}
 
+	/**
+	 * POST index.php?route=account/merchant/save (AJAX)
+	 * Used by the per-section "Save" button once a merchant already has an
+	 * application on file — saves whatever is currently in the form without
+	 * forcing them back through the linear Continue flow, and responds with
+	 * JSON instead of redirecting so the page can show a toast in place.
+	 */
+	public function save() {
+		$this->load->language('account/merchant');
+
+		$json = array();
+
+		if (!$this->customer->isLogged() || !$this->isMerchantGroup((int)$this->customer->getGroupId())) {
+			$json['error'] = $this->language->get('error_no_access');
+		}
+
+		if (!$json && $this->validateForm()) {
+			$this->load->model('account/merchant');
+			$this->model_account_merchant->saveApplication($this->customer->getId(), $this->request->post);
+
+			$json['success'] = $this->language->get('text_success_save');
+		} elseif (!$json) {
+			$json['error'] = current($this->error);
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
 	protected function getViewData() {
 		$data['heading_title'] = $this->language->get('heading_title');
 
@@ -68,6 +97,7 @@ class ControllerAccountMerchant extends Controller {
 
 		$data['action'] = $this->url->link('account/merchant', '', true);
 		$data['back']   = $this->url->link('account/account', '', true);
+		$data['ajax_save'] = $this->url->link('account/merchant/save', '', true);
 
 		$data['categories'] = array(
 			'sewing'      => $this->language->get('text_cat_sewing'),
@@ -133,6 +163,8 @@ class ControllerAccountMerchant extends Controller {
 			: $saved_categories;
 
 		$data['error'] = $this->error;
+
+		$data['previously_submitted'] = !empty($existing) && $existing['status'] !== 'incomplete';
 
 		$data['customer_email'] = $this->customer->getEmail();
 

@@ -1,4 +1,5 @@
 {{ header }}
+<link rel="stylesheet" type="text/css" href="catalog/view/javascript/merchant.css" />
 <div class="container cp-merchant-container">
   <ul class="breadcrumb">
     {% for breadcrumb in breadcrumbs %}
@@ -24,12 +25,12 @@
 
         <div class="cp-layout">
           <nav class="cp-tabs" id="cpTabs">
-            <div class="cp-tab active" data-step="0"><span class="cp-tab-num">1</span><span class="cp-tab-label">{{ text_step_contact }}</span><span class="cp-tab-stamp">done</span></div>
-            <div class="cp-tab" data-step="1"><span class="cp-tab-num">2</span><span class="cp-tab-label">{{ text_step_billing }}</span><span class="cp-tab-stamp">done</span></div>
-            <div class="cp-tab" data-step="2"><span class="cp-tab-num">3</span><span class="cp-tab-label">{{ text_step_shipping }}</span><span class="cp-tab-stamp">done</span></div>
-            <div class="cp-tab" data-step="3"><span class="cp-tab-num">4</span><span class="cp-tab-label">{{ text_step_business }}</span><span class="cp-tab-stamp">done</span></div>
-            <div class="cp-tab" data-step="4"><span class="cp-tab-num">5</span><span class="cp-tab-label">{{ text_step_category }}</span><span class="cp-tab-stamp">done</span></div>
-            <div class="cp-tab" data-step="5"><span class="cp-tab-num">6</span><span class="cp-tab-label">{{ text_step_review }}</span><span class="cp-tab-stamp">done</span></div>
+            <div class="cp-tab active" data-step="0"><span class="cp-tab-num">1</span><span class="cp-tab-label">{{ text_step_contact }}</span><span class="cp-tab-stamp">&#10003;</span></div>
+            <div class="cp-tab" data-step="1"><span class="cp-tab-num">2</span><span class="cp-tab-label">{{ text_step_billing }}</span><span class="cp-tab-stamp">&#10003;</span></div>
+            <div class="cp-tab" data-step="2"><span class="cp-tab-num">3</span><span class="cp-tab-label">{{ text_step_shipping }}</span><span class="cp-tab-stamp">&#10003;</span></div>
+            <div class="cp-tab" data-step="3"><span class="cp-tab-num">4</span><span class="cp-tab-label">{{ text_step_business }}</span><span class="cp-tab-stamp">&#10003;</span></div>
+            <div class="cp-tab" data-step="4"><span class="cp-tab-num">5</span><span class="cp-tab-label">{{ text_step_category }}</span><span class="cp-tab-stamp">&#10003;</span></div>
+            <div class="cp-tab" data-step="5"><span class="cp-tab-num">6</span><span class="cp-tab-label">{{ text_step_review }}</span><span class="cp-tab-stamp">&#10003;</span></div>
           </nav>
 
           <div class="cp-panel">
@@ -227,14 +228,16 @@
               <div class="cp-step-footer">
                 <span class="cp-progress-text" id="cpProgressText">STEP 1 / 6</span>
                 <div class="cp-nav-group">
-                  <a href="{{ back }}" class="btn btn-default" id="cpCancel">Cancel</a>
                   <button type="button" class="btn cp-btn-back" id="cpBtnBack">Back</button>
                   <button type="button" class="btn cp-btn-next" id="cpBtnNext">Continue</button>
                   <button type="submit" class="btn cp-btn-submit" id="cpBtnSubmit" style="display:none;">Submit Application</button>
+                  <button type="button" class="btn cp-btn-submit" id="cpBtnSave" data-save-url="{{ ajax_save }}" style="display:none;">Save</button>
                 </div>
               </div>
 
             </form>
+
+            <div class="cp-merchant-toast" id="cpMerchantToast"></div>
           </div>
         </div>
       </div>
@@ -245,64 +248,20 @@
   </div>
 </div>
 
-<style>
-.cp-merchant-app{--cp-yellow:#F5C518;--cp-yellow-deep:#E0A800;--cp-olive:#4A4A22;--cp-olive-dark:#33330F;--cp-ink-muted:#7A7A5C;--cp-hairline:#E8DFB0;--cp-paper:#FFFDF5;--cp-sage:#5C7A3E;font-family:inherit;color:var(--cp-olive-dark);margin:20px 0 60px;}
-.cp-merchant-app .cp-masthead{border-bottom:3px solid var(--cp-yellow-deep);padding-bottom:16px;margin-bottom:24px;}
-.cp-merchant-app .cp-masthead h1{font-weight:700;color:var(--cp-olive-dark);margin:0 0 4px;}
-.cp-merchant-app .cp-masthead-sub{color:var(--cp-ink-muted);margin:0;font-size:14px;}
-.cp-merchant-app .cp-layout{display:grid;grid-template-columns:220px 1fr;background:var(--cp-paper);border:1px solid var(--cp-hairline);border-radius:6px;overflow:hidden;}
-.cp-merchant-app .cp-tabs{background:#FFF9E0;border-right:1px solid var(--cp-hairline);padding:8px 0;}
-.cp-merchant-app .cp-tab{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;border-left:3px solid transparent;transition:.15s;}
-.cp-merchant-app .cp-tab:hover{background:#FFF3C4;}
-.cp-merchant-app .cp-tab.active{background:var(--cp-paper);border-left-color:var(--cp-yellow-deep);}
-.cp-merchant-app .cp-tab-num{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--cp-hairline);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--cp-ink-muted);flex-shrink:0;}
-.cp-merchant-app .cp-tab.active .cp-tab-num{border-color:var(--cp-yellow-deep);color:var(--cp-olive-dark);}
-.cp-merchant-app .cp-tab.done .cp-tab-num{background:var(--cp-sage);border-color:var(--cp-sage);color:#fff;}
-.cp-merchant-app .cp-tab-label{font-size:13px;font-weight:600;color:var(--cp-ink-muted);}
-.cp-merchant-app .cp-tab.active .cp-tab-label,.cp-merchant-app .cp-tab.done .cp-tab-label{color:var(--cp-olive-dark);}
-.cp-merchant-app .cp-tab-stamp{display:none;}
-.cp-merchant-app .cp-panel{padding:28px 32px;}
-.cp-merchant-app .cp-step{display:none;}
-.cp-merchant-app .cp-step.active{display:block;}
-.cp-merchant-app .cp-step h2{font-weight:700;margin:0 0 20px;color:var(--cp-olive-dark);}
-.cp-merchant-app .cp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px;}
-.cp-merchant-app .cp-field{display:flex;flex-direction:column;gap:5px;}
-.cp-merchant-app .cp-field.full{grid-column:1/-1;}
-.cp-merchant-app label{font-size:12px;font-weight:600;color:var(--cp-ink-muted);}
-.cp-merchant-app .req{color:#B23B2E;}
-.cp-merchant-app input[type=text],.cp-merchant-app textarea{font-size:14px;padding:9px 11px;border:1px solid var(--cp-hairline);border-radius:4px;background:#fff;}
-.cp-merchant-app input:focus,.cp-merchant-app textarea:focus{outline:none;border-color:var(--cp-yellow-deep);box-shadow:0 0 0 3px rgba(224,168,0,.2);}
-.cp-merchant-app textarea{min-height:70px;}
-.cp-merchant-app .cp-error{font-size:11.5px;color:#B23B2E;}
-.cp-merchant-app .cp-check-row{display:flex;align-items:center;gap:8px;background:#FFF3C4;border:1px solid var(--cp-hairline);padding:10px 14px;border-radius:4px;width:fit-content;margin-bottom:18px;cursor:pointer;font-size:13px;font-weight:600;}
-.cp-merchant-app .cp-radio-grid,.cp-merchant-app .cp-checkbox-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px;}
-.cp-merchant-app .cp-checkbox-grid{grid-template-columns:repeat(3,1fr);}
-.cp-merchant-app .cp-opt{display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 10px;border:1px solid var(--cp-hairline);border-radius:4px;cursor:pointer;}
-.cp-merchant-app .cp-opt.checked{border-color:var(--cp-yellow-deep);background:#FFF9DA;}
-.cp-merchant-app .cp-subhead{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--cp-yellow-deep);margin-bottom:10px;}
-.cp-merchant-app .cp-divider{border:none;border-top:1px solid var(--cp-hairline);margin:20px 0;}
-.cp-merchant-app .cp-confirm-box{background:#FFF9E0;border:1px dashed var(--cp-hairline);padding:14px 16px;border-radius:4px;font-size:13px;color:var(--cp-ink-muted);margin-bottom:20px;}
-.cp-merchant-app .cp-notice{background:#FFF3C4;border:1px solid var(--cp-yellow-deep);padding:12px 14px;border-radius:4px;font-size:12.5px;color:var(--cp-olive-dark);margin-top:20px;}
-.cp-merchant-app .cp-step-footer{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:18px;border-top:1px solid var(--cp-hairline);}
-.cp-merchant-app .cp-progress-text{font-size:12px;color:var(--cp-ink-muted);font-weight:600;}
-.cp-merchant-app .cp-nav-group{display:flex;gap:8px;}
-.cp-merchant-app .cp-btn-next,.cp-merchant-app .cp-btn-submit{background:var(--cp-yellow-deep);border-color:var(--cp-yellow-deep);color:#3a2c00;font-weight:700;}
-.cp-merchant-app .cp-btn-next:hover,.cp-merchant-app .cp-btn-submit:hover{background:var(--cp-yellow);border-color:var(--cp-yellow);}
-@media (max-width:760px){
-  .cp-merchant-app .cp-layout{grid-template-columns:1fr;}
-  .cp-merchant-app .cp-tabs{display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid var(--cp-hairline);}
-  .cp-merchant-app .cp-tab{border-left:none;border-bottom:3px solid transparent;flex-shrink:0;}
-  .cp-merchant-app .cp-tab.active{border-bottom-color:var(--cp-yellow-deep);}
-  .cp-merchant-app .cp-grid,.cp-merchant-app .cp-radio-grid{grid-template-columns:1fr;}
-  .cp-merchant-app .cp-checkbox-grid{grid-template-columns:repeat(2,1fr);}
-  .cp-merchant-app .cp-panel{padding:20px 16px;}
-}
-</style>
-
 <script type="text/javascript">
 $(function(){
   var totalSteps = 6;
   var current = 0;
+  var previouslySubmitted = {{ previously_submitted ? 'true' : 'false' }};
+
+  function showToast(message, type){
+    var $toast = $('#cpMerchantToast');
+    $toast.removeClass('cp-toast-success cp-toast-error').addClass(type === 'error' ? 'cp-toast-error' : 'cp-toast-success');
+    $toast.text(message).addClass('show');
+    clearTimeout($toast.data('cpTimer'));
+    var t = setTimeout(function(){ $toast.removeClass('show'); }, 2500);
+    $toast.data('cpTimer', t);
+  }
 
   function renderStep(){
     $('.cp-step').removeClass('active');
@@ -312,21 +271,36 @@ $(function(){
     $('.cp-tab[data-step="'+current+'"]').addClass('active');
     $('.cp-tab').each(function(){
       var s = parseInt($(this).data('step'));
-      $(this).toggleClass('done', s < current);
+      // Only mark a step "done" once there's an actual saved row for this
+      // application (previouslySubmitted) — merely clicking past a step
+      // in a brand-new registration never persisted anything, so it must
+      // not show a checkmark implying the data is safely stored.
+      $(this).toggleClass('done', previouslySubmitted && s < current);
     });
 
     $('#cpProgressText').text('STEP ' + (current + 1) + ' / ' + totalSteps);
-    $('#cpBtnBack').toggle(current > 0);
-    $('#cpBtnNext').toggle(current < totalSteps - 1);
-    $('#cpBtnSubmit').toggle(current === totalSteps - 1);
+
+    if (previouslySubmitted) {
+      // Returning merchants edit freely — every section just has Save,
+      // no linear Continue/Submit gate.
+      $('#cpBtnBack').toggle(current > 0);
+      $('#cpBtnNext').hide();
+      $('#cpBtnSubmit').hide();
+      $('#cpBtnSave').show();
+    } else {
+      $('#cpBtnBack').toggle(current > 0);
+      $('#cpBtnNext').toggle(current < totalSteps - 1);
+      $('#cpBtnSubmit').toggle(current === totalSteps - 1);
+      $('#cpBtnSave').hide();
+    }
   }
 
+  // Tabs are freely clickable — merchants revisiting a submitted
+  // application (or fixing a validation error) shouldn't have to walk
+  // through Continue/Back one step at a time to reach a section.
   $('#cpTabs').on('click', '.cp-tab', function(){
-    var target = parseInt($(this).data('step'));
-    if (target <= current || $(this).hasClass('done')) {
-      current = target;
-      renderStep();
-    }
+    current = parseInt($(this).data('step'));
+    renderStep();
   });
 
   $('#cpBtnNext').on('click', function(){
@@ -347,6 +321,36 @@ $(function(){
 
   $('#cpBtnBack').on('click', function(){
     if (current > 0){ current--; renderStep(); }
+  });
+
+  // AJAX save, used only once the merchant already has data on file —
+  // saves the whole form as-is and shows a toast instead of reloading
+  // the page, so they stay on whichever section they're editing.
+  $('#cpBtnSave').on('click', function(){
+    var $btn = $(this);
+    var url = $btn.data('save-url');
+
+    $btn.prop('disabled', true);
+
+    $.ajax({
+      url: url,
+      type: 'post',
+      data: $('#cpMerchantForm').serialize(),
+      dataType: 'json',
+      success: function(json){
+        if (json['error']) {
+          showToast(json['error'], 'error');
+        } else {
+          showToast(json['success'] || 'Saved!', 'success');
+        }
+      },
+      error: function(){
+        showToast('Something went wrong saving your application.', 'error');
+      },
+      complete: function(){
+        $btn.prop('disabled', false);
+      }
+    });
   });
 
   // "Same as Billing Information" — plain jQuery DOM/event handling only,

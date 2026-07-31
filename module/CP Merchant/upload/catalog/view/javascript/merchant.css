@@ -1,0 +1,351 @@
+.cp-merchant-app{
+  --cp-ink:#1B2A3A;
+  --cp-ink-muted:#6B7480;
+  --cp-paper:#F8F6F1;
+  --cp-paper-raised:#FFFFFF;
+  --cp-mustard:#C08A2E;
+  --cp-mustard-dim:#E8D2A6;
+  --cp-sage:#5C7A5E;
+  --cp-hairline:#D9D3C4;
+  --cp-danger:#A6432E;
+  --cp-radius:2px;
+  font-family:inherit;
+  color:var(--cp-ink);
+  margin:20px 0 60px;
+}
+.cp-merchant-app .cp-masthead{
+  border-bottom:2px solid var(--cp-ink);
+  padding-bottom:20px;
+  margin-bottom:36px;
+}
+.cp-merchant-app .cp-masthead h1{
+  font-family:'Fraunces',serif;
+  font-size:28px;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  margin:0 0 4px;
+  color:var(--cp-ink);
+}
+.cp-merchant-app .cp-masthead-sub{
+  font-size:13px;
+  color:var(--cp-ink-muted);
+  margin:0;
+}
+.cp-merchant-app .cp-layout{
+  display:grid;
+  grid-template-columns:230px 1fr;
+  gap:0;
+  background:var(--cp-paper-raised);
+  border:1px solid var(--cp-hairline);
+}
+
+/* ---- Ledger tabs (signature element) ---- */
+.cp-merchant-app .cp-tabs{
+  border-right:1px solid var(--cp-hairline);
+  padding:8px 0;
+}
+.cp-merchant-app .cp-tab{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:16px 20px;
+  cursor:pointer;
+  border-left:3px solid transparent;
+  transition:background .15s ease, border-color .15s ease;
+}
+.cp-merchant-app .cp-tab:hover{background:#F4F0E6;}
+.cp-merchant-app .cp-tab.active{
+  background:var(--cp-paper);
+  border-left-color:var(--cp-mustard);
+}
+.cp-merchant-app .cp-tab-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  border:1.5px solid var(--cp-hairline);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  color:var(--cp-ink-muted);
+  transition:all .2s ease;
+}
+.cp-merchant-app .cp-tab.active .cp-tab-num{
+  border-color:var(--cp-mustard);
+  color:var(--cp-mustard);
+}
+.cp-merchant-app .cp-tab.done .cp-tab-num{
+  background:var(--cp-sage);
+  border-color:var(--cp-sage);
+  color:#fff;
+}
+.cp-merchant-app .cp-tab-label{
+  font-size:13px;
+  font-weight:500;
+  color:var(--cp-ink-muted);
+  line-height:1.3;
+  flex:1;
+  min-width:0;
+}
+.cp-merchant-app .cp-tab.active .cp-tab-label{color:var(--cp-ink);}
+.cp-merchant-app .cp-tab.done .cp-tab-label{color:var(--cp-ink);}
+.cp-merchant-app .cp-tab-stamp{
+  margin-left:auto;
+  flex-shrink:0;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  font-weight:600;
+  line-height:1;
+  color:var(--cp-sage);
+  border:1.5px solid var(--cp-sage);
+  border-radius:50%;
+  width:18px;
+  height:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  transform:scale(.6);
+  transition:all .2s ease;
+}
+.cp-merchant-app .cp-tab.done .cp-tab-stamp{opacity:1;transform:scale(1);}
+
+/* ---- Form panel ---- */
+.cp-merchant-app .cp-panel{padding:36px 44px;}
+.cp-merchant-app .cp-step{display:none;}
+.cp-merchant-app .cp-step.active{display:block;animation:cpFade .25s ease;}
+@keyframes cpFade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+.cp-merchant-app .cp-step h2{
+  font-family:'Fraunces',serif;
+  font-size:22px;
+  font-weight:600;
+  margin:0 0 4px;
+  color:var(--cp-ink);
+}
+.cp-merchant-app .cp-step-sub{
+  font-size:13px;
+  color:var(--cp-ink-muted);
+  margin:0 0 28px;
+}
+
+.cp-merchant-app .cp-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px 24px;
+}
+.cp-merchant-app .cp-field{display:flex;flex-direction:column;gap:6px;}
+.cp-merchant-app .cp-field.full{grid-column:1 / -1;}
+.cp-merchant-app label{
+  font-size:12px;
+  font-weight:500;
+  color:var(--cp-ink-muted);
+}
+.cp-merchant-app label .req, .cp-merchant-app .req{color:var(--cp-danger);margin-left:2px;}
+.cp-merchant-app input[type=text],
+.cp-merchant-app input[type=email],
+.cp-merchant-app input[type=tel],
+.cp-merchant-app textarea,
+.cp-merchant-app select{
+  font-family:inherit;
+  font-size:14px;
+  padding:5px 12px;
+  border:1px solid var(--cp-hairline);
+  border-radius:var(--cp-radius);
+  background:var(--cp-paper);
+  color:var(--cp-ink);
+  outline:none;
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+.cp-merchant-app input:focus,
+.cp-merchant-app textarea:focus,
+.cp-merchant-app select:focus{
+  border-color:var(--cp-mustard);
+  box-shadow:0 0 0 3px var(--cp-mustard-dim);
+}
+.cp-merchant-app textarea{resize:vertical;min-height:88px;}
+.cp-merchant-app .cp-error{font-size:11.5px;color:var(--cp-danger);}
+
+.cp-merchant-app .cp-check-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-bottom:20px;
+  padding:11px 14px;
+  background:#F4F0E6;
+  border:1px solid var(--cp-hairline);
+  border-radius:var(--cp-radius);
+  width:fit-content;
+  cursor:pointer;
+  user-select:none;
+}
+.cp-merchant-app .cp-check-row input{accent-color:var(--cp-mustard);width:15px;height:15px;}
+.cp-merchant-app .cp-check-row span{font-size:13px;font-weight:500;}
+
+.cp-merchant-app .cp-radio-grid,
+.cp-merchant-app .cp-checkbox-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px 20px;
+}
+.cp-merchant-app .cp-checkbox-grid{grid-template-columns:repeat(3,1fr);}
+.cp-merchant-app .cp-opt{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:13.5px;
+  padding:9px 10px;
+  border:1px solid var(--cp-hairline);
+  border-radius:var(--cp-radius);
+  cursor:pointer;
+  transition:border-color .15s ease, background .15s ease;
+}
+.cp-merchant-app .cp-opt:hover{border-color:var(--cp-mustard-dim);}
+.cp-merchant-app .cp-opt input{accent-color:var(--cp-mustard);}
+.cp-merchant-app .cp-opt.checked{border-color:var(--cp-mustard);background:#FBF6EA;}
+
+.cp-merchant-app .cp-divider{
+  border:none;
+  border-top:1px solid var(--cp-hairline);
+  margin:28px 0;
+}
+.cp-merchant-app .cp-subhead{
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--cp-mustard);
+  margin:0 0 14px;
+}
+
+.cp-merchant-app .cp-confirm-box{
+  background:var(--cp-paper);
+  border:1px dashed var(--cp-hairline);
+  padding:18px 20px;
+  border-radius:var(--cp-radius);
+  font-size:13px;
+  color:var(--cp-ink-muted);
+  line-height:1.6;
+  margin-bottom:24px;
+}
+.cp-merchant-app .cp-confirm-box strong{color:var(--cp-ink);}
+
+.cp-merchant-app .cp-notice{
+  display:flex;
+  gap:10px;
+  background:#FBF3E4;
+  border:1px solid var(--cp-mustard-dim);
+  padding:14px 16px;
+  border-radius:var(--cp-radius);
+  font-size:12.5px;
+  color:#6B4E17;
+  margin-top:28px;
+  line-height:1.5;
+}
+
+/* ---- Footer / nav ---- */
+.cp-merchant-app .cp-step-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:36px;
+  padding-top:24px;
+  border-top:1px solid var(--cp-hairline);
+}
+.cp-merchant-app .cp-progress-text{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--cp-ink-muted);
+}
+.cp-merchant-app .cp-nav-group{display:flex;gap:10px;}
+.cp-merchant-app .cp-nav-group .btn{
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:600;
+  padding:12px 24px;
+  border-radius:var(--cp-radius);
+  transition:all .15s ease;
+}
+.cp-merchant-app .cp-btn-back{
+  border:1.5px solid var(--cp-ink);
+  background:transparent;
+  color:var(--cp-ink);
+}
+.cp-merchant-app .cp-btn-back:hover{background:var(--cp-ink);color:#fff;}
+.cp-merchant-app .cp-btn-next{
+  background:var(--cp-ink);
+  border:1.5px solid var(--cp-ink);
+  color:#fff;
+}
+.cp-merchant-app .cp-btn-next:hover{background:var(--cp-mustard);border-color:var(--cp-mustard);}
+.cp-merchant-app .cp-btn-submit{
+  background:var(--cp-mustard);
+  border:1.5px solid var(--cp-mustard);
+  color:#fff;
+}
+.cp-merchant-app .cp-btn-submit:hover{background:#A67526;border-color:#A67526;}
+
+@media (max-width:760px){
+  .cp-merchant-app .cp-layout{grid-template-columns:1fr;}
+  .cp-merchant-app .cp-tabs{
+    display:flex;
+    overflow-x:auto;
+    border-right:none;
+    border-bottom:1px solid var(--cp-hairline);
+  }
+  .cp-merchant-app .cp-tab{border-left:none;border-bottom:3px solid transparent;flex-shrink:0;}
+  .cp-merchant-app .cp-tab.active{border-bottom-color:var(--cp-mustard);}
+  .cp-merchant-app .cp-tab-label{white-space:nowrap;}
+  .cp-merchant-app .cp-tab-stamp{display:none;}
+  .cp-merchant-app .cp-grid,.cp-merchant-app .cp-radio-grid{grid-template-columns:1fr;}
+  .cp-merchant-app .cp-checkbox-grid{grid-template-columns:repeat(2,1fr);}
+  .cp-merchant-app .cp-panel{padding:28px 20px;}
+}
+
+/* Override OC3/bootstrap's default gradient .btn-default look — mockup
+   calls for a flat button with a thin border, no shadow/gradient. Scoped
+   to .cp-merchant-app so it doesn't leak out and affect the rest of the
+   admin/storefront theme. */
+.cp-merchant-app .btn-default{
+  color:var(--cp-ink);
+  text-shadow:none;
+  background-color:var(--cp-paper);
+  background-image:none;
+  background-repeat:no-repeat;
+  border:1.5px solid var(--cp-hairline);
+  box-shadow:none;
+}
+.cp-merchant-app .btn-default:hover,
+.cp-merchant-app .btn-default:focus{
+  color:var(--cp-ink);
+  background-color:#F4F0E6;
+  border-color:var(--cp-mustard-dim);
+  box-shadow:none;
+}
+
+/* Toast notification — centered, used for the AJAX "Save" flow */
+.cp-merchant-toast{
+  position:fixed;
+  top:40%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(.9);
+  background:var(--cp-ink);
+  color:#fff;
+  padding:16px 28px;
+  border-radius:var(--cp-radius);
+  font-size:14px;
+  font-weight:600;
+  box-shadow:0 8px 30px rgba(27,42,58,.35);
+  z-index:9999;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.cp-merchant-toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+.cp-merchant-toast.cp-toast-success{background:var(--cp-sage);}
+.cp-merchant-toast.cp-toast-error{background:var(--cp-danger);}

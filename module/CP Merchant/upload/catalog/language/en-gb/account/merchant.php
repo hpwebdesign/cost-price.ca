@@ -38,6 +38,8 @@ $_['text_biz_llc']              = 'LLC';
 
 // Success
 $_['text_success'] = 'Your merchant application has been submitted. Cost-Price will review it and contact you within 24-48 business hours.';
+$_['text_success_save'] = 'Application saved!';
+$_['error_no_access'] = 'You do not have access to this page.';
 
 // Errors
 $_['error_business_operating_name'] = 'Business Operating Name is required.';

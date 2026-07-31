@@ -1,0 +1,10 @@
+// Cpanel
+Control Panel URL: https://gn405.whpservers.com:2222/
+Control Panel Username: fpbytghr
+Control Panel Password: Rva284G=V+gDhZ[F
+
+
+// Admin
+www.cost-price.ca/admin
+user: opencart
+pass: 123321

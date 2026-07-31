@@ -101,6 +101,34 @@ class ControllerExtensionModuleCpMerchant extends Controller {
 
 		$customer_id = (int)($this->request->get['customer_id'] ?? 0);
 
+		$data = $this->getApplicationViewData($customer_id);
+
+		$this->response->setOutput($this->load->view('extension/module/cp_merchant_form', $data));
+	}
+
+	/**
+	 * GET index.php?route=extension/module/cp_merchant/quickedit&customer_id=X
+	 * Renders the same ledger-tab stepper design used on the storefront
+	 * (account/merchant), as an editable fragment loaded into the Quick
+	 * Edit popup from the customer list.
+	 */
+	public function quickedit() {
+		$this->load->language('extension/module/cp_merchant');
+
+		$customer_id = (int)($this->request->get['customer_id'] ?? 0);
+
+		$data = $this->getApplicationViewData($customer_id);
+
+		$data['catalog_url'] = HTTP_CATALOG;
+
+		$this->load->model('customer/customer');
+		$customer_info = $this->model_customer_customer->getCustomer($customer_id);
+		$data['customer_name'] = $customer_info ? $customer_info['firstname'] . ' ' . $customer_info['lastname'] : '';
+
+		$this->response->setOutput($this->load->view('extension/module/cp_merchant_quickedit', $data));
+	}
+
+	protected function getApplicationViewData($customer_id) {
 		$this->load->model('extension/module/cp_merchant');
 
 		$application = $customer_id ? $this->model_extension_module_cp_merchant->getApplicationByCustomerId($customer_id) : false;
@@ -167,7 +195,9 @@ class ControllerExtensionModuleCpMerchant extends Controller {
 
 		$data['shipping_same_as_billing'] = !empty($application['shipping_same_as_billing']);
 
-		$this->response->setOutput($this->load->view('extension/module/cp_merchant_form', $data));
+		$data['has_application'] = !empty($application);
+
+		return $data;
 	}
 
 	/**
@@ -205,7 +235,8 @@ class ControllerExtensionModuleCpMerchant extends Controller {
 	/**
 	 * POST index.php?route=extension/module/cp_merchant/liststatus&user_token=...
 	 * Batched lookup used by the customer list to fill in the Merchant
-	 * Status column without an OCMOD edit to the core list controller.
+	 * Status column and decide whether to show the Quick Edit button —
+	 * without an OCMOD edit to the core list controller.
 	 */
 	public function liststatus() {
 		$json = array();
@@ -214,10 +245,22 @@ class ControllerExtensionModuleCpMerchant extends Controller {
 
 		if (is_array($customer_ids) && $customer_ids) {
 			$this->load->model('extension/module/cp_merchant');
+			$this->load->model('customer/customer');
+
+			$merchant_group_ids = array_map('intval', (array)$this->config->get('module_cp_merchant_group_ids'));
 
 			foreach ($customer_ids as $customer_id) {
-				$application = $this->model_extension_module_cp_merchant->getApplicationByCustomerId((int)$customer_id);
-				$json[(int)$customer_id] = $application ? ucwords(str_replace("_"," ", $application['status'])) : '';
+				$customer_id = (int)$customer_id;
+
+				$application = $this->model_extension_module_cp_merchant->getApplicationByCustomerId($customer_id);
+
+				$customer_info = $this->model_customer_customer->getCustomer($customer_id);
+				$is_merchant = $customer_info && in_array((int)$customer_info['customer_group_id'], $merchant_group_ids, true);
+
+				$json[$customer_id] = array(
+					'status'      => $application ? $application['status'] : '',
+					'is_merchant' => $is_merchant
+				);
 			}
 		}
 
