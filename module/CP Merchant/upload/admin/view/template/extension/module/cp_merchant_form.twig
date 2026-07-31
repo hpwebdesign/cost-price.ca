@@ -1,0 +1,205 @@
+<div id="cp-merchant-alert"></div>
+<input type="hidden" id="cp-merchant-customer-id" value="{{ customer_id }}">
+
+<div class="form-group">
+  <label class="col-sm-2 control-label">Application Status</label>
+  <div class="col-sm-10">
+    <select name="cp_status" id="cp-status" class="form-control">
+      {% for value, label in statuses %}
+      <option value="{{ value }}" {% if status == value %}selected="selected"{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+<fieldset>
+  <legend>Contact Information</legend>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Business Operating Name</label>
+    <div class="col-sm-10"><input type="text" name="business_operating_name" value="{{ business_operating_name }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Manager First Name</label>
+    <div class="col-sm-10"><input type="text" name="manager_first_name" value="{{ manager_first_name }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Manager Last Name</label>
+    <div class="col-sm-10"><input type="text" name="manager_last_name" value="{{ manager_last_name }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Title / Position</label>
+    <div class="col-sm-10"><input type="text" name="title_position" value="{{ title_position }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Phone</label>
+    <div class="col-sm-10"><input type="text" name="phone" value="{{ phone }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Cell</label>
+    <div class="col-sm-10"><input type="text" name="cell" value="{{ cell }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Promo Mailing Address</label>
+    <div class="col-sm-10"><textarea name="promo_mailing_address" class="form-control cp-field">{{ promo_mailing_address }}</textarea></div>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Billing Information</legend>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Address 1</label>
+    <div class="col-sm-10"><input type="text" name="billing_address_1" id="cp-billing-address-1" value="{{ billing_address_1 }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Address 2</label>
+    <div class="col-sm-10"><input type="text" name="billing_address_2" id="cp-billing-address-2" value="{{ billing_address_2 }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">City</label>
+    <div class="col-sm-10"><input type="text" name="billing_city" id="cp-billing-city" value="{{ billing_city }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Province</label>
+    <div class="col-sm-10"><input type="text" name="billing_province" id="cp-billing-province" value="{{ billing_province }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Postal Code</label>
+    <div class="col-sm-10"><input type="text" name="billing_postcode" id="cp-billing-postcode" value="{{ billing_postcode }}" class="form-control cp-field" /></div>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Shipping Information</legend>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <label class="checkbox-inline">
+        <input type="checkbox" name="shipping_same_as_billing" id="cp-shipping-same" value="1" {% if shipping_same_as_billing %}checked="checked"{% endif %} /> Same as Billing Information
+      </label>
+    </div>
+  </div>
+  <div id="cp-shipping-fields">
+    <div class="form-group">
+      <label class="col-sm-2 control-label">Address 1</label>
+      <div class="col-sm-10"><input type="text" name="shipping_address_1" id="cp-shipping-address-1" value="{{ shipping_address_1 }}" class="form-control cp-field" /></div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">Address 2</label>
+      <div class="col-sm-10"><input type="text" name="shipping_address_2" id="cp-shipping-address-2" value="{{ shipping_address_2 }}" class="form-control cp-field" /></div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">City</label>
+      <div class="col-sm-10"><input type="text" name="shipping_city" id="cp-shipping-city" value="{{ shipping_city }}" class="form-control cp-field" /></div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">Province</label>
+      <div class="col-sm-10"><input type="text" name="shipping_province" id="cp-shipping-province" value="{{ shipping_province }}" class="form-control cp-field" /></div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">Postal Code</label>
+      <div class="col-sm-10"><input type="text" name="shipping_postcode" id="cp-shipping-postcode" value="{{ shipping_postcode }}" class="form-control cp-field" /></div>
+    </div>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Business Information</legend>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Type of Business</label>
+    <div class="col-sm-10">
+      {% for value, label in business_types %}
+      <label class="radio-inline">
+        <input type="radio" name="business_type" value="{{ value }}" class="cp-field" {% if business_type == value %}checked="checked"{% endif %} /> {{ label }}
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Legal Business Name</label>
+    <div class="col-sm-10"><input type="text" name="legal_business_name" value="{{ legal_business_name }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Name of Legal Owner</label>
+    <div class="col-sm-10"><input type="text" name="legal_business_owner" value="{{ legal_business_owner }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">GST/HST Number</label>
+    <div class="col-sm-10"><input type="text" name="gst_hst_number" value="{{ gst_hst_number }}" class="form-control cp-field" /></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Business Started</label>
+    <div class="col-sm-10"><input type="text" name="business_started" value="{{ business_started }}" placeholder="YYYY-MM" class="form-control cp-field" /></div>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Product Categories of Interest</legend>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      {% for value, label in categories_list %}
+      <label class="checkbox-inline">
+        <input type="checkbox" name="categories[]" value="{{ value }}" class="cp-field" {% if value in categories_selected %}checked="checked"{% endif %} /> {{ label }}
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Other</label>
+    <div class="col-sm-10"><input type="text" name="category_other" value="{{ category_other }}" class="form-control cp-field" /></div>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Questions &amp; Confirmation</legend>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Questions / Comments</label>
+    <div class="col-sm-10"><textarea name="questions_comments" class="form-control cp-field">{{ questions_comments }}</textarea></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Applicant Name</label>
+    <div class="col-sm-10"><input type="text" name="applicant_name" value="{{ applicant_name }}" class="form-control cp-field" /></div>
+  </div>
+</fieldset>
+
+<div class="form-group text-right">
+  <button type="button" id="cp-merchant-save" class="btn btn-primary" data-save-url="{{ save }}">
+    <i class="fa fa-save"></i> Save Merchant Application
+  </button>
+</div>
+
+<script type="text/javascript"><![CDATA[
+(function(){
+  function toggleShippingFields(){
+    var same = $('#cp-shipping-same').is(':checked');
+    $('#cp-shipping-fields input').prop('disabled', same);
+    $('#cp-shipping-fields').css('opacity', same ? 0.5 : 1);
+  }
+  $('#cp-shipping-same').off('change.cpmerchant').on('change.cpmerchant', toggleShippingFields);
+  toggleShippingFields();
+
+  $('#cp-merchant-save').off('click.cpmerchant').on('click.cpmerchant', function(){
+    var url = $(this).data('save-url');
+    var data = $('#tab-merchant :input.cp-field, #tab-merchant select[name="cp_status"], #tab-merchant input[name="shipping_same_as_billing"]').serialize();
+    data += '&customer_id=' + $('#cp-merchant-customer-id').val();
+
+    $.ajax({
+      url: url,
+      type: 'post',
+      data: data,
+      dataType: 'json',
+      success: function(json){
+        var html = '';
+        if (json['error']) {
+          html = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>';
+        }
+        if (json['success']) {
+          html = '<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>';
+        }
+        $('#cp-merchant-alert').html(html);
+      },
+      error: function(xhr, ajaxOptions, thrownError){
+        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+      }
+    });
+  });
+})();
+]]></script>

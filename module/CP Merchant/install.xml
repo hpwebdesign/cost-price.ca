@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  <name>Cost-Price Merchant Application - Customer Admin Integration</name>
+  <code>cp_merchant_admin</code>
+  <version>1.0</version>
+  <author>Bariklabs</author>
+  <link>https://cost-price.example</link>
+
+  <!-- customer_form.twig -->
+  <file path="admin/view/template/customer/customer_form.twig">
+
+    <!-- Add the tab link, hidden by default (JS shows it only for merchant group) -->
+    <operation error="skip">
+      <search><![CDATA[<li><a href="#tab-affiliate" data-toggle="tab">{{ tab_affiliate }}</a></li>]]></search>
+      <add position="after"><![CDATA[
+            <li id="tab-merchant-li" style="display:none;"><a href="#tab-merchant" data-toggle="tab">Merchant Application</a></li>]]></add>
+    </operation>
+
+    <!-- Add an empty tab-pane placeholder; content is loaded via AJAX -->
+    <operation error="skip">
+      <search><![CDATA[<div class="tab-pane" id="tab-affiliate">]]></search>
+      <add position="before"><![CDATA[
+            <div class="tab-pane" id="tab-merchant"><p class="text-muted">Loading...</p></div>]]></add>
+    </operation>
+
+    <!-- Toggle the tab based on customer_group_id and load/refresh its content.
+         The merchant group list is configurable (Extensions > Modules > Merchant
+         Application), so this asks the server rather than hardcoding an id. -->
+    <operation error="skip">
+      <search><![CDATA[$('input[name=\'affiliate\']:checked').trigger('change');]]></search>
+      <add position="after"><![CDATA[
+
+  function cpToggleMerchantTab(group_id, customer_id) {
+    $.ajax({
+      url: 'index.php?route=extension/module/cp_merchant/checkgroup&user_token={{ user_token }}&group_id=' + group_id,
+      dataType: 'json',
+      success: function(json) {
+        if (json['is_merchant']) {
+          $('#tab-merchant-li').show();
+          if (customer_id) {
+            $('#tab-merchant').load('index.php?route=extension/module/cp_merchant/form&user_token={{ user_token }}&customer_id=' + customer_id);
+          } else {
+            $('#tab-merchant').html('<p class="text-muted">Save the customer first to manage the merchant application.</p>');
+          }
+        } else {
+          $('#tab-merchant-li').hide();
+        }
+      }
+    });
+  }
+  $('select[name=\'customer_group_id\']').on('change', function() {
+    cpToggleMerchantTab(this.value, {{ customer_id ? customer_id : 0 }});
+  });
+  cpToggleMerchantTab($('select[name=\'customer_group_id\']').val(), {{ customer_id ? customer_id : 0 }});]]></add>
+    </operation>
+
+  </file>
+
+  <!-- customer_list.twig -->
+  <file path="admin/view/template/customer/customer_list.twig">
+
+    <!-- Header column -->
+    <operation error="skip">
+      <search><![CDATA[<td class="text-right">{{ column_action }}</td>]]></search>
+      <add position="before"><![CDATA[<td class="text-left">Merchant Status</td>
+]]></add>
+    </operation>
+
+    <!-- Body column: placeholder filled in by AJAX after page load -->
+    <operation error="skip">
+      <search><![CDATA[<td class="text-left">{{ customer.date_added }}</td>]]></search>
+      <add position="after"><![CDATA[<td class="text-left cp-merchant-status" data-customer-id="{{ customer.customer_id }}">-</td>]]></add>
+    </operation>
+
+    <!-- Colspan fix for the "no results" row -->
+    <operation error="skip">
+      <search><![CDATA[colspan="8"]]></search>
+      <add position="replace"><![CDATA[colspan="9"]]></add>
+    </operation>
+
+    <!-- Batched AJAX fill-in for the new column. Anchored on {{ footer }},
+         the last unique token in the file, so the existing datetimepicker
+         script block is left completely untouched. -->
+    <operation error="skip">
+      <search><![CDATA[{{ footer }}]]></search>
+      <add position="before"><![CDATA[<script type="text/javascript"><!--
+  (function(){
+    var ids = [];
+    $('.cp-merchant-status').each(function(){
+      var id = $(this).data('customer-id');
+      if (id) { ids.push(id); }
+    });
+    if (ids.length) {
+      $.ajax({
+        url: 'index.php?route=extension/module/cp_merchant/liststatus&user_token={{ user_token }}',
+        type: 'post',
+        data: { customer_ids: ids },
+        dataType: 'json',
+        success: function(json) {
+          $('.cp-merchant-status').each(function(){
+            var id = $(this).data('customer-id');
+            var status = json[id];
+            $(this).text(status ? status : '-');
+          });
+        }
+      });
+    }
+  })();
+  //--></script>
+]]></add>
+    </operation>
+
+  </file>
+  <file path="catalog/controller/account/account.php">
+<operation error="skip">
+  <search><![CDATA[ $this->load->language('account/account'); ]]></search>
+    <add position="before">
+        <![CDATA[ 
+        $cp_merchant_group_ids = (array)$this->config->get('module_cp_merchant_group_ids'); 
+        if (in_array((int)$this->customer->getGroupId(), array_map('intval', $cp_merchant_group_ids), true)) { 
+        $this->load->model('account/merchant'); 
+        $cp_application = $this->model_account_merchant->getApplication($this->customer->getId()); 
+          if ($cp_application) { 
+          $this->response->redirect($this->url->link('account/merchant', '', true)); 
+          }  
+        } ]]>
+    </add>
+  </operation>
+</file>
+</modification>

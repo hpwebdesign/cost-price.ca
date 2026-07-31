@@ -1,0 +1,377 @@
+{{ header }}
+<div class="container cp-merchant-container">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+    {% endfor %}
+  </ul>
+
+  {% if error.warning is defined %}
+  <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error.warning }}</div>
+  {% endif %}
+
+  <div class="row">
+    {{ column_left }}
+    <div id="content" class="{% if column_left and column_right %}col-sm-6{% elseif column_left or column_right %}col-sm-9{% else %}col-sm-12{% endif %}">
+      {{ content_top }}
+
+      <div class="cp-merchant-app">
+
+        <div class="cp-masthead">
+          <h1>{{ heading_title }}</h1>
+          <p class="cp-masthead-sub">A few details so we can set up your wholesale account.</p>
+        </div>
+
+        <div class="cp-layout">
+          <nav class="cp-tabs" id="cpTabs">
+            <div class="cp-tab active" data-step="0"><span class="cp-tab-num">1</span><span class="cp-tab-label">{{ text_step_contact }}</span><span class="cp-tab-stamp">done</span></div>
+            <div class="cp-tab" data-step="1"><span class="cp-tab-num">2</span><span class="cp-tab-label">{{ text_step_billing }}</span><span class="cp-tab-stamp">done</span></div>
+            <div class="cp-tab" data-step="2"><span class="cp-tab-num">3</span><span class="cp-tab-label">{{ text_step_shipping }}</span><span class="cp-tab-stamp">done</span></div>
+            <div class="cp-tab" data-step="3"><span class="cp-tab-num">4</span><span class="cp-tab-label">{{ text_step_business }}</span><span class="cp-tab-stamp">done</span></div>
+            <div class="cp-tab" data-step="4"><span class="cp-tab-num">5</span><span class="cp-tab-label">{{ text_step_category }}</span><span class="cp-tab-stamp">done</span></div>
+            <div class="cp-tab" data-step="5"><span class="cp-tab-num">6</span><span class="cp-tab-label">{{ text_step_review }}</span><span class="cp-tab-stamp">done</span></div>
+          </nav>
+
+          <div class="cp-panel">
+            <form id="cpMerchantForm" action="{{ action }}" method="post">
+
+              <div class="cp-step active" data-step="0">
+                <h2>{{ text_step_contact }}</h2>
+                <div class="cp-grid">
+                  <div class="cp-field full">
+                    <label>Business Operating Name <span class="req">*</span></label>
+                    <input type="text" name="business_operating_name" value="{{ business_operating_name }}" required>
+                    {% if error.business_operating_name is defined %}<span class="cp-error">{{ error.business_operating_name }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Manager First Name <span class="req">*</span></label>
+                    <input type="text" name="manager_first_name" value="{{ manager_first_name }}" required>
+                    {% if error.manager_first_name is defined %}<span class="cp-error">{{ error.manager_first_name }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Manager Last Name <span class="req">*</span></label>
+                    <input type="text" name="manager_last_name" value="{{ manager_last_name }}" required>
+                    {% if error.manager_last_name is defined %}<span class="cp-error">{{ error.manager_last_name }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Title / Position <span class="req">*</span></label>
+                    <input type="text" name="title_position" value="{{ title_position }}" required>
+                    {% if error.title_position is defined %}<span class="cp-error">{{ error.title_position }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Phone <span class="req">*</span></label>
+                    <input type="text" name="phone" value="{{ phone }}" required>
+                    {% if error.phone is defined %}<span class="cp-error">{{ error.phone }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Cell</label>
+                    <input type="text" name="cell" value="{{ cell }}">
+                  </div>
+                  <div class="cp-field">
+                    <label>Email</label>
+                    <input type="text" value="{{ customer_email }}" disabled>
+                  </div>
+                  <div class="cp-field full">
+                    <label>Mailing Address for Promotions and Special Deals <span class="req">*</span></label>
+                    <textarea name="promo_mailing_address" required>{{ promo_mailing_address }}</textarea>
+                    {% if error.promo_mailing_address is defined %}<span class="cp-error">{{ error.promo_mailing_address }}</span>{% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="cp-step" data-step="1">
+                <h2>{{ text_step_billing }}</h2>
+                <div class="cp-grid">
+                  <div class="cp-field full">
+                    <label>Address 1 <span class="req">*</span></label>
+                    <input type="text" name="billing_address_1" id="billing_address_1" value="{{ billing_address_1 }}" required>
+                    {% if error.billing_address_1 is defined %}<span class="cp-error">{{ error.billing_address_1 }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field full">
+                    <label>Address 2</label>
+                    <input type="text" name="billing_address_2" id="billing_address_2" value="{{ billing_address_2 }}">
+                  </div>
+                  <div class="cp-field">
+                    <label>City <span class="req">*</span></label>
+                    <input type="text" name="billing_city" id="billing_city" value="{{ billing_city }}" required>
+                    {% if error.billing_city is defined %}<span class="cp-error">{{ error.billing_city }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Province <span class="req">*</span></label>
+                    <input type="text" name="billing_province" id="billing_province" value="{{ billing_province }}" required>
+                    {% if error.billing_province is defined %}<span class="cp-error">{{ error.billing_province }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Postal Code <span class="req">*</span></label>
+                    <input type="text" name="billing_postcode" id="billing_postcode" value="{{ billing_postcode }}" required>
+                    {% if error.billing_postcode is defined %}<span class="cp-error">{{ error.billing_postcode }}</span>{% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="cp-step" data-step="2">
+                <h2>{{ text_step_shipping }}</h2>
+                <label class="cp-check-row" for="shipping_same_as_billing">
+                  <input type="checkbox" name="shipping_same_as_billing" id="shipping_same_as_billing" value="1" {% if shipping_same_as_billing %}checked{% endif %}>
+                  <span>Same as Billing Information</span>
+                </label>
+                <div class="cp-grid" id="cpShippingFields">
+                  <div class="cp-field full">
+                    <label>Address 1 <span class="req">*</span></label>
+                    <input type="text" name="shipping_address_1" id="shipping_address_1" value="{{ shipping_address_1 }}" required>
+                    {% if error.shipping_address_1 is defined %}<span class="cp-error">{{ error.shipping_address_1 }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field full">
+                    <label>Address 2</label>
+                    <input type="text" name="shipping_address_2" id="shipping_address_2" value="{{ shipping_address_2 }}">
+                  </div>
+                  <div class="cp-field">
+                    <label>City <span class="req">*</span></label>
+                    <input type="text" name="shipping_city" id="shipping_city" value="{{ shipping_city }}" required>
+                    {% if error.shipping_city is defined %}<span class="cp-error">{{ error.shipping_city }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Province <span class="req">*</span></label>
+                    <input type="text" name="shipping_province" id="shipping_province" value="{{ shipping_province }}" required>
+                    {% if error.shipping_province is defined %}<span class="cp-error">{{ error.shipping_province }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Postal Code <span class="req">*</span></label>
+                    <input type="text" name="shipping_postcode" id="shipping_postcode" value="{{ shipping_postcode }}" required>
+                    {% if error.shipping_postcode is defined %}<span class="cp-error">{{ error.shipping_postcode }}</span>{% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="cp-step" data-step="3">
+                <h2>{{ text_step_business }}</h2>
+                <p class="cp-subhead">Type of Business <span class="req">*</span></p>
+                <div class="cp-radio-grid">
+                  {% for value, label in business_types %}
+                  <label class="cp-opt{% if business_type == value %} checked{% endif %}">
+                    <input type="radio" name="business_type" value="{{ value }}" {% if business_type == value %}checked{% endif %} required> {{ label }}
+                  </label>
+                  {% endfor %}
+                </div>
+                {% if error.business_type is defined %}<span class="cp-error">{{ error.business_type }}</span>{% endif %}
+
+                <div class="cp-grid" style="margin-top:20px;">
+                  <div class="cp-field full">
+                    <label>Legal Business Name <span class="req">*</span></label>
+                    <input type="text" name="legal_business_name" value="{{ legal_business_name }}" required>
+                    {% if error.legal_business_name is defined %}<span class="cp-error">{{ error.legal_business_name }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field full">
+                    <label>Name of Legal Business Owner <span class="req">*</span></label>
+                    <input type="text" name="legal_business_owner" value="{{ legal_business_owner }}" required>
+                    {% if error.legal_business_owner is defined %}<span class="cp-error">{{ error.legal_business_owner }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Federal Business (GST/HST) Number <span class="req">*</span></label>
+                    <input type="text" name="gst_hst_number" value="{{ gst_hst_number }}" required>
+                    {% if error.gst_hst_number is defined %}<span class="cp-error">{{ error.gst_hst_number }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Year and Month Business Started <span class="req">*</span></label>
+                    <input type="text" name="business_started" placeholder="e.g. 2019-06" value="{{ business_started }}" required>
+                    {% if error.business_started is defined %}<span class="cp-error">{{ error.business_started }}</span>{% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="cp-step" data-step="4">
+                <h2>{{ text_step_category }}</h2>
+                <div class="cp-checkbox-grid">
+                  {% for value, label in categories %}
+                  <label class="cp-opt{% if value in categories_selected %} checked{% endif %}">
+                    <input type="checkbox" name="categories[]" value="{{ value }}" {% if value in categories_selected %}checked{% endif %}> {{ label }}
+                  </label>
+                  {% endfor %}
+                </div>
+                <div class="cp-field full" style="margin-top:16px;">
+                  <label>Other</label>
+                  <input type="text" name="category_other" value="{{ category_other }}" placeholder="Tell us what else you're looking for">
+                </div>
+              </div>
+
+              <div class="cp-step" data-step="5">
+                <h2>{{ text_step_review }}</h2>
+                <div class="cp-field full" style="margin-bottom:20px;">
+                  <label>Questions / Comments</label>
+                  <textarea name="questions_comments" style="min-height:100px;">{{ questions_comments }}</textarea>
+                </div>
+
+                <hr class="cp-divider">
+
+                <div class="cp-confirm-box">
+                  By submitting this form, the applicant confirms that all information provided is true and complete.
+                </div>
+
+                <div class="cp-grid">
+                  <div class="cp-field">
+                    <label>Applicant Name <span class="req">*</span></label>
+                    <input type="text" name="applicant_name" value="{{ applicant_name }}" required>
+                    {% if error.applicant_name is defined %}<span class="cp-error">{{ error.applicant_name }}</span>{% endif %}
+                  </div>
+                  <div class="cp-field">
+                    <label>Date Submitted</label>
+                    <input type="text" value="Auto-filled on submit" disabled>
+                  </div>
+                </div>
+
+                <div class="cp-notice">
+                  <strong>Cost-Price will review all applications</strong> and contact approved applicants within 24&ndash;48 business hours. Please do not submit payment information through this application form.
+                </div>
+              </div>
+
+              <div class="cp-step-footer">
+                <span class="cp-progress-text" id="cpProgressText">STEP 1 / 6</span>
+                <div class="cp-nav-group">
+                  <a href="{{ back }}" class="btn btn-default" id="cpCancel">Cancel</a>
+                  <button type="button" class="btn cp-btn-back" id="cpBtnBack">Back</button>
+                  <button type="button" class="btn cp-btn-next" id="cpBtnNext">Continue</button>
+                  <button type="submit" class="btn cp-btn-submit" id="cpBtnSubmit" style="display:none;">Submit Application</button>
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {{ content_bottom }}
+    </div>
+    {{ column_right }}
+  </div>
+</div>
+
+<style>
+.cp-merchant-app{--cp-yellow:#F5C518;--cp-yellow-deep:#E0A800;--cp-olive:#4A4A22;--cp-olive-dark:#33330F;--cp-ink-muted:#7A7A5C;--cp-hairline:#E8DFB0;--cp-paper:#FFFDF5;--cp-sage:#5C7A3E;font-family:inherit;color:var(--cp-olive-dark);margin:20px 0 60px;}
+.cp-merchant-app .cp-masthead{border-bottom:3px solid var(--cp-yellow-deep);padding-bottom:16px;margin-bottom:24px;}
+.cp-merchant-app .cp-masthead h1{font-weight:700;color:var(--cp-olive-dark);margin:0 0 4px;}
+.cp-merchant-app .cp-masthead-sub{color:var(--cp-ink-muted);margin:0;font-size:14px;}
+.cp-merchant-app .cp-layout{display:grid;grid-template-columns:220px 1fr;background:var(--cp-paper);border:1px solid var(--cp-hairline);border-radius:6px;overflow:hidden;}
+.cp-merchant-app .cp-tabs{background:#FFF9E0;border-right:1px solid var(--cp-hairline);padding:8px 0;}
+.cp-merchant-app .cp-tab{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;border-left:3px solid transparent;transition:.15s;}
+.cp-merchant-app .cp-tab:hover{background:#FFF3C4;}
+.cp-merchant-app .cp-tab.active{background:var(--cp-paper);border-left-color:var(--cp-yellow-deep);}
+.cp-merchant-app .cp-tab-num{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--cp-hairline);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--cp-ink-muted);flex-shrink:0;}
+.cp-merchant-app .cp-tab.active .cp-tab-num{border-color:var(--cp-yellow-deep);color:var(--cp-olive-dark);}
+.cp-merchant-app .cp-tab.done .cp-tab-num{background:var(--cp-sage);border-color:var(--cp-sage);color:#fff;}
+.cp-merchant-app .cp-tab-label{font-size:13px;font-weight:600;color:var(--cp-ink-muted);}
+.cp-merchant-app .cp-tab.active .cp-tab-label,.cp-merchant-app .cp-tab.done .cp-tab-label{color:var(--cp-olive-dark);}
+.cp-merchant-app .cp-tab-stamp{display:none;}
+.cp-merchant-app .cp-panel{padding:28px 32px;}
+.cp-merchant-app .cp-step{display:none;}
+.cp-merchant-app .cp-step.active{display:block;}
+.cp-merchant-app .cp-step h2{font-weight:700;margin:0 0 20px;color:var(--cp-olive-dark);}
+.cp-merchant-app .cp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px;}
+.cp-merchant-app .cp-field{display:flex;flex-direction:column;gap:5px;}
+.cp-merchant-app .cp-field.full{grid-column:1/-1;}
+.cp-merchant-app label{font-size:12px;font-weight:600;color:var(--cp-ink-muted);}
+.cp-merchant-app .req{color:#B23B2E;}
+.cp-merchant-app input[type=text],.cp-merchant-app textarea{font-size:14px;padding:9px 11px;border:1px solid var(--cp-hairline);border-radius:4px;background:#fff;}
+.cp-merchant-app input:focus,.cp-merchant-app textarea:focus{outline:none;border-color:var(--cp-yellow-deep);box-shadow:0 0 0 3px rgba(224,168,0,.2);}
+.cp-merchant-app textarea{min-height:70px;}
+.cp-merchant-app .cp-error{font-size:11.5px;color:#B23B2E;}
+.cp-merchant-app .cp-check-row{display:flex;align-items:center;gap:8px;background:#FFF3C4;border:1px solid var(--cp-hairline);padding:10px 14px;border-radius:4px;width:fit-content;margin-bottom:18px;cursor:pointer;font-size:13px;font-weight:600;}
+.cp-merchant-app .cp-radio-grid,.cp-merchant-app .cp-checkbox-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px;}
+.cp-merchant-app .cp-checkbox-grid{grid-template-columns:repeat(3,1fr);}
+.cp-merchant-app .cp-opt{display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 10px;border:1px solid var(--cp-hairline);border-radius:4px;cursor:pointer;}
+.cp-merchant-app .cp-opt.checked{border-color:var(--cp-yellow-deep);background:#FFF9DA;}
+.cp-merchant-app .cp-subhead{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--cp-yellow-deep);margin-bottom:10px;}
+.cp-merchant-app .cp-divider{border:none;border-top:1px solid var(--cp-hairline);margin:20px 0;}
+.cp-merchant-app .cp-confirm-box{background:#FFF9E0;border:1px dashed var(--cp-hairline);padding:14px 16px;border-radius:4px;font-size:13px;color:var(--cp-ink-muted);margin-bottom:20px;}
+.cp-merchant-app .cp-notice{background:#FFF3C4;border:1px solid var(--cp-yellow-deep);padding:12px 14px;border-radius:4px;font-size:12.5px;color:var(--cp-olive-dark);margin-top:20px;}
+.cp-merchant-app .cp-step-footer{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:18px;border-top:1px solid var(--cp-hairline);}
+.cp-merchant-app .cp-progress-text{font-size:12px;color:var(--cp-ink-muted);font-weight:600;}
+.cp-merchant-app .cp-nav-group{display:flex;gap:8px;}
+.cp-merchant-app .cp-btn-next,.cp-merchant-app .cp-btn-submit{background:var(--cp-yellow-deep);border-color:var(--cp-yellow-deep);color:#3a2c00;font-weight:700;}
+.cp-merchant-app .cp-btn-next:hover,.cp-merchant-app .cp-btn-submit:hover{background:var(--cp-yellow);border-color:var(--cp-yellow);}
+@media (max-width:760px){
+  .cp-merchant-app .cp-layout{grid-template-columns:1fr;}
+  .cp-merchant-app .cp-tabs{display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid var(--cp-hairline);}
+  .cp-merchant-app .cp-tab{border-left:none;border-bottom:3px solid transparent;flex-shrink:0;}
+  .cp-merchant-app .cp-tab.active{border-bottom-color:var(--cp-yellow-deep);}
+  .cp-merchant-app .cp-grid,.cp-merchant-app .cp-radio-grid{grid-template-columns:1fr;}
+  .cp-merchant-app .cp-checkbox-grid{grid-template-columns:repeat(2,1fr);}
+  .cp-merchant-app .cp-panel{padding:20px 16px;}
+}
+</style>
+
+<script type="text/javascript">
+$(function(){
+  var totalSteps = 6;
+  var current = 0;
+
+  function renderStep(){
+    $('.cp-step').removeClass('active');
+    $('.cp-step[data-step="'+current+'"]').addClass('active');
+
+    $('.cp-tab').removeClass('active');
+    $('.cp-tab[data-step="'+current+'"]').addClass('active');
+    $('.cp-tab').each(function(){
+      var s = parseInt($(this).data('step'));
+      $(this).toggleClass('done', s < current);
+    });
+
+    $('#cpProgressText').text('STEP ' + (current + 1) + ' / ' + totalSteps);
+    $('#cpBtnBack').toggle(current > 0);
+    $('#cpBtnNext').toggle(current < totalSteps - 1);
+    $('#cpBtnSubmit').toggle(current === totalSteps - 1);
+  }
+
+  $('#cpTabs').on('click', '.cp-tab', function(){
+    var target = parseInt($(this).data('step'));
+    if (target <= current || $(this).hasClass('done')) {
+      current = target;
+      renderStep();
+    }
+  });
+
+  $('#cpBtnNext').on('click', function(){
+    var $active = $('.cp-step.active');
+    var valid = true;
+
+    $active.find('input[required], textarea[required]').each(function(){
+      if (!this.checkValidity()) {
+        this.reportValidity();
+        valid = false;
+        return false;
+      }
+    });
+
+    if (!valid) return;
+    if (current < totalSteps - 1){ current++; renderStep(); }
+  });
+
+  $('#cpBtnBack').on('click', function(){
+    if (current > 0){ current--; renderStep(); }
+  });
+
+  // "Same as Billing Information" — plain jQuery DOM/event handling only,
+  // no dependency on any UI component plugin
+  function applySameAsBilling(){
+    var checked = $('#shipping_same_as_billing').is(':checked');
+    $('#cpShippingFields input').prop('disabled', checked);
+    $('#cpShippingFields').css('opacity', checked ? 0.5 : 1);
+    if (checked){
+      $('#shipping_address_1').val($('#billing_address_1').val());
+      $('#shipping_address_2').val($('#billing_address_2').val());
+      $('#shipping_city').val($('#billing_city').val());
+      $('#shipping_province').val($('#billing_province').val());
+      $('#shipping_postcode').val($('#billing_postcode').val());
+    }
+  }
+  $('#shipping_same_as_billing').on('change', applySameAsBilling);
+  applySameAsBilling();
+
+  $('.cp-opt input').on('change', function(){
+    $(this).closest('.cp-opt').toggleClass('checked', $(this).is(':checked'));
+  });
+
+  renderStep();
+});
+</script>
+
+{{ footer }}
