@@ -41,7 +41,7 @@ class ModelExtensionModuleCpMerchant extends Model {
 			`date_modified` DATETIME NOT NULL,
 			PRIMARY KEY (`merchant_application_id`),
 			UNIQUE KEY `customer_id` (`customer_id`)
-		) ENGINE=" . DB_ENGINE . " DEFAULT CHARSET=utf8");
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8");
 	}
 
 	public function uninstall() {
