@@ -153,7 +153,8 @@
     var labels = {
       'pending_review': 'Pending Review',
       'approved':       'Approved',
-      'rejected':       'Rejected'
+      'rejected':       'Rejected',
+      'incomplete':       'Incomplete',
     };
 
     // Appended directly to <body> (not left inline in the page) so
@@ -187,7 +188,7 @@
           $('.cp-merchant-status-badge').each(function(){
             var id = $(this).data('customer-id');
             var row = json[id] || {};
-            var label = labels[row.status];
+            var label = row.status ? labels[row.status] || 'Incomplete' : '';
 
             $(this).removeClass('cp-status-pending_review cp-status-approved cp-status-rejected').hide().text('');
             if (label) {
