@@ -51,7 +51,34 @@
   $('select[name=\'customer_group_id\']').on('change', function() {
     cpToggleMerchantTab(this.value, {{ customer_id ? customer_id : 0 }});
   });
-  cpToggleMerchantTab($('select[name=\'customer_group_id\']').val(), {{ customer_id ? customer_id : 0 }});]]></add>
+  cpToggleMerchantTab($('select[name=\'customer_group_id\']').val(), {{ customer_id ? customer_id : 0 }});
+
+  // Also persist the merchant tab whenever the main customer Save button
+  // is clicked, so admins don't have to remember to use the tab's own
+  // separate Save button. Guarded on the tab actually having been loaded
+  // (its fields present in the DOM) — otherwise, for a customer whose
+  // merchant tab was never opened this session, we'd silently POST empty
+  // values and wipe out their real data.
+  $(document).on('click', '#button-save', function() {
+    var customerId = {{ customer_id ? customer_id : 0 }};
+    var $fields = $('#tab-merchant :input.cp-field');
+
+    if (!customerId || !$fields.length) {
+      return;
+    }
+
+    var data = $fields.serialize()
+      + '&' + $('#tab-merchant select[name="cp_status"]').serialize()
+      + '&' + $('#tab-merchant input[name="shipping_same_as_billing"]').serialize()
+      + '&customer_id=' + customerId;
+
+    $.ajax({
+      url: 'index.php?route=extension/module/cp_merchant/save&user_token={{ user_token }}',
+      type: 'post',
+      data: data,
+      dataType: 'json'
+    });
+  });]]></add>
     </operation>
 
   </file>
@@ -64,7 +91,7 @@
          (batched lookup, no core controller edit needed). -->
     <operation error="skip">
       <search><![CDATA[{{ customer.name }}]]></search>
-      <add position="replace"><![CDATA[{{ customer.name }}<div class="cp-merchant-status-badge" data-customer-id="{{ customer.customer_id }}" style="display:none;"></div><a href="javascript:void(0);" class="btn btn-xs btn-info cp-merchant-quickedit-btn" data-customer-id="{{ customer.customer_id }}" style="display:none;">Quick Edit</a>]]></add>
+      <add position="replace"><![CDATA[{{ customer.name }}<div class="cp-merchant-status-badge" data-customer-id="{{ customer.customer_id }}" style="display:none;"></div><a href="javascript:void(0);" class="btn btn-xs btn-info cp-merchant-quickedit-btn" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="Quick Edit Merchant Application" style="display:none;"><i class="fa fa-pencil"></i></a>]]></add>
     </operation>
 
     <!-- Badge + Quick Edit trigger + popup styling, all as CSS classes -->
@@ -83,9 +110,31 @@
   .cp-merchant-status-badge.cp-status-approved{background:#E7F0E3;color:#3F6B2E;}
   .cp-merchant-status-badge.cp-status-rejected{background:#FBEAE7;color:#A6432E;}
   .cp-merchant-quickedit-btn{margin-top:4px;}
-  .cp-qe-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(27,42,58,.55);z-index:9998;align-items:center;justify-content:center;}
-  .cp-qe-overlay.show{display:flex;}
-  .cp-qe-modal{background:#fff;max-width:980px;width:92%;max-height:88vh;overflow-y:auto;border-radius:4px;position:relative;padding:24px;}
+  .cp-qe-overlay{
+    display:none;
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    margin:0 !important;
+    background:rgba(27,42,58,.55);
+    z-index:99998;
+    align-items:center;
+    justify-content:center;
+  }
+  .cp-qe-overlay.show{display:flex !important;}
+  .cp-qe-modal{
+    background:#fff;
+    max-width:980px;
+    width:92%;
+    height:auto;
+    overflow-y:auto;
+    border-radius:4px;
+    position:relative;
+    margin:auto;
+    padding:24px;
+  }
   .cp-qe-close{position:absolute;top:12px;right:16px;font-size:24px;line-height:1;cursor:pointer;color:#6B7480;z-index:2;}
   .cp-qe-close:hover{color:#1B2A3A;}
   .cp-qe-status-select{font-size:13px;padding:6px 8px;border:1px solid #D9D3C4;border-radius:2px;width:100%;}
@@ -99,19 +148,28 @@
          via AJAX and refreshes the badge on save. -->
     <operation error="skip">
       <search><![CDATA[{{ footer }}]]></search>
-      <add position="before"><![CDATA[<div class="cp-qe-overlay" id="cpQeOverlay">
-  <div class="cp-qe-modal" id="cpQeModal">
-    <span class="cp-qe-close" id="cpQeClose">&times;</span>
-    <div id="cpQeContent"></div>
-  </div>
-</div>
-<script type="text/javascript"><!--
+      <add position="before"><![CDATA[<script type="text/javascript"><!--
   (function(){
     var labels = {
       'pending_review': 'Pending Review',
       'approved':       'Approved',
       'rejected':       'Rejected'
     };
+
+    // Appended directly to <body> (not left inline in the page) so
+    // position:fixed centers against the real viewport — if it were left
+    // nested inside the admin layout's containers, an ancestor with a CSS
+    // transform (common in admin theme panel/animation wrappers) would
+    // make position:fixed compute relative to that ancestor instead of
+    // the viewport, throwing off centering.
+    $('body').append(
+      '<div class="cp-qe-overlay" id="cpQeOverlay">' +
+        '<div class="cp-qe-modal" id="cpQeModal">' +
+          '<span class="cp-qe-close" id="cpQeClose">&times;</span>' +
+          '<div id="cpQeContent"></div>' +
+        '</div>' +
+      '</div>'
+    );
 
     function refreshBadges() {
       var ids = [];
@@ -152,10 +210,10 @@
       $('#cpQeContent').load('index.php?route=extension/module/cp_merchant/quickedit&user_token={{ user_token }}&customer_id=' + customerId);
     });
 
-    $('#cpQeClose').on('click', function(){
+    $(document).on('click', '#cpQeClose', function(){
       $('#cpQeOverlay').removeClass('show');
     });
-    $('#cpQeOverlay').on('click', function(e){
+    $(document).on('click', '#cpQeOverlay', function(e){
       if (e.target === this) { $('#cpQeOverlay').removeClass('show'); }
     });
 
@@ -177,17 +235,17 @@
       <search><![CDATA[$this->load->language('account/account');]]></search>
       <add position="before"><![CDATA[$cp_merchant_group_ids = (array)$this->config->get('module_cp_merchant_group_ids');
 
-		if (in_array((int)$this->customer->getGroupId(), array_map('intval', $cp_merchant_group_ids), true)) {
-			$this->load->model('account/merchant');
+    if (in_array((int)$this->customer->getGroupId(), array_map('intval', $cp_merchant_group_ids), true)) {
+      $this->load->model('account/merchant');
 
-			$cp_application = $this->model_account_merchant->getApplication($this->customer->getId());
+      $cp_application = $this->model_account_merchant->getApplication($this->customer->getId());
 
-			if (!$cp_application || $cp_application['status'] == 'incomplete') {
-				$this->response->redirect($this->url->link('account/merchant', '', true));
-			}
-		}
+      if (!$cp_application || $cp_application['status'] == 'incomplete') {
+        $this->response->redirect($this->url->link('account/merchant', '', true));
+      }
+    }
 
-		]]></add>
+    ]]></add>
     </operation>
 
   </file>
@@ -200,19 +258,19 @@
     <operation error="skip">
       <search><![CDATA[public function index() {]]></search>
       <add position="after"><![CDATA[
-		if ($this->customer->isLogged()) {
-			$cp_merchant_group_ids = (array)$this->config->get('module_cp_merchant_group_ids');
+    if ($this->customer->isLogged()) {
+      $cp_merchant_group_ids = (array)$this->config->get('module_cp_merchant_group_ids');
 
-			if (in_array((int)$this->customer->getGroupId(), array_map('intval', $cp_merchant_group_ids), true)) {
-				$this->load->model('account/merchant');
+      if (in_array((int)$this->customer->getGroupId(), array_map('intval', $cp_merchant_group_ids), true)) {
+        $this->load->model('account/merchant');
 
-				$cp_application = $this->model_account_merchant->getApplication($this->customer->getId());
+        $cp_application = $this->model_account_merchant->getApplication($this->customer->getId());
 
-				if (!$cp_application || $cp_application['status'] == 'incomplete') {
-					$this->response->redirect($this->url->link('account/merchant', '', true));
-				}
-			}
-		}
+        if (!$cp_application || $cp_application['status'] == 'incomplete') {
+          $this->response->redirect($this->url->link('account/merchant', '', true));
+        }
+      }
+    }
 ]]></add>
     </operation>
 

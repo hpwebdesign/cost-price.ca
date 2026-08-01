@@ -253,7 +253,7 @@
     $.ajax({
       url: url,
       type: 'post',
-      data: $('#cpQeMerchantForm').serialize(),
+      data: $('#cpQeMerchantForm').serialize() + '&cp_status=' + encodeURIComponent($('#cpQeStatus').val()),
       dataType: 'json',
       success: function(json){
         if (json['error']) {

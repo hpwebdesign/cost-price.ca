@@ -255,11 +255,15 @@ class ControllerExtensionModuleCpMerchant extends Controller {
 				$application = $this->model_extension_module_cp_merchant->getApplicationByCustomerId($customer_id);
 
 				$customer_info = $this->model_customer_customer->getCustomer($customer_id);
-				$is_merchant = $customer_info && in_array((int)$customer_info['customer_group_id'], $merchant_group_ids, true);
+				$is_merchant_group = $customer_info && in_array((int)$customer_info['customer_group_id'], $merchant_group_ids, true);
 
 				$json[$customer_id] = array(
 					'status'      => $application ? $application['status'] : '',
-					'is_merchant' => $is_merchant
+					// Show Quick Edit if the customer is currently in a
+					// merchant group, OR they already have application
+					// data saved — otherwise a customer whose group later
+					// changed would lock admins out of their existing data.
+					'is_merchant' => $is_merchant_group || !empty($application)
 				);
 			}
 		}
