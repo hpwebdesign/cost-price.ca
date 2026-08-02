@@ -1,4 +1,11 @@
 <div id="cp-merchant-alert"></div>
+
+<div class="text-right">
+  <button type="button" id="cp-merchant-save" class="btn btn-primary" data-save-url="{{ save }}">
+    <i class="fa fa-save"></i> Save Merchant Application
+  </button>
+</div>
+
 <input type="hidden" id="cp-merchant-customer-id" value="{{ customer_id }}">
 
 <div class="form-group">
@@ -160,14 +167,39 @@
   </div>
 </fieldset>
 
-<div class="form-group text-right">
-  <button type="button" id="cp-merchant-save" class="btn btn-primary" data-save-url="{{ save }}">
-    <i class="fa fa-save"></i> Save Merchant Application
-  </button>
-</div>
+<style>
+  .cp-tab-toast{
+    position:fixed;
+    top:40%;
+    left:50%;
+    transform:translate(-50%,-50%) scale(.9);
+    background:#3F6B2E;
+    color:#fff;
+    padding:14px 26px;
+    border-radius:3px;
+    font-size:14px;
+    font-weight:600;
+    box-shadow:0 8px 30px rgba(0,0,0,.3);
+    z-index:99999;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .cp-tab-toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+</style>
+
+<div class="cp-tab-toast" id="cpMerchantTabToast"></div>
 
 <script type="text/javascript">
 (function(){
+  function showTabToast(message){
+    var $toast = $('#cpMerchantTabToast');
+    $toast.text(message).addClass('show');
+    clearTimeout($toast.data('cpTimer'));
+    var t = setTimeout(function(){ $toast.removeClass('show'); }, 2500);
+    $toast.data('cpTimer', t);
+  }
+
   function toggleShippingFields(){
     var same = $('#cp-shipping-same').is(':checked');
     $('#cp-shipping-fields input').prop('disabled', same);
@@ -187,14 +219,12 @@
       data: data,
       dataType: 'json',
       success: function(json){
-        var html = '';
         if (json['error']) {
-          html = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>';
+          $('#cp-merchant-alert').html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+        } else if (json['success']) {
+          $('#cp-merchant-alert').html('');
+          showTabToast(json['success']);
         }
-        if (json['success']) {
-          html = '<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>';
-        }
-        $('#cp-merchant-alert').html(html);
       },
       error: function(xhr, ajaxOptions, thrownError){
         alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
